@@ -1,0 +1,3180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRIME-Factory — Software Constitution v1.0</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:#f4f6f9;color:#1a2332;line-height:1.75;padding:24px}
+.wrap{max-width:1100px;margin:0 auto;background:#fff;box-shadow:0 2px 20px rgba(0,0,0,.08);border-radius:12px;overflow:hidden}
+header{background:linear-gradient(135deg,#0d3b66,#14508a);color:#fff;padding:40px 48px}
+header h1{font-size:30px;margin-bottom:8px}
+header .sub{opacity:.92;font-size:15px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.meta span{background:rgba(255,255,255,.15);padding:5px 12px;border-radius:20px;font-size:13px}
+.body{padding:36px 48px}
+h2{color:#0d3b66;font-size:22px;margin:36px 0 14px;padding-bottom:8px;border-bottom:3px solid #0d3b66}
+h3{color:#14508a;font-size:17px;margin:24px 0 10px}
+h4{color:#1a2332;font-size:15px;margin:18px 0 8px;font-weight:700}
+p{margin-bottom:12px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+th{background:#0d3b66;color:#fff;padding:10px;text-align:right;font-weight:600}
+td{padding:9px 10px;border-bottom:1px solid #dde3ea;vertical-align:top}
+tr:nth-child(even) td{background:#f7f9fc}
+code{background:#eef1f5;padding:2px 6px;border-radius:4px;font-family:Consolas,monospace;font-size:13px;direction:ltr;display:inline-block}
+pre{background:#1e293b;color:#e2e8f0;padding:14px 18px;border-radius:8px;overflow-x:auto;font-family:Consolas,monospace;font-size:13px;line-height:1.6;margin:12px 0;direction:ltr;text-align:left}
+.box{border-radius:8px;padding:14px 18px;margin:16px 0;font-size:14.5px}
+.warn{background:#fff4e5;border-right:5px solid #e8a33d}
+.danger{background:#fdecea;border-right:5px solid #c0392b}
+.info{background:#e7f1fb;border-right:5px solid #14508a}
+.ok{background:#e8f5e9;border-right:5px solid #2e9e5b}
+.rule{background:#f3e8ff;border-right:5px solid #6b4c9a}
+.badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.b-new{background:#2e9e5b;color:#fff}
+.b-keep{background:#14508a;color:#fff}
+.b-buy{background:#e8a33d;color:#fff}
+.b-drop{background:#c0392b;color:#fff}
+ul,ol{margin:8px 20px 14px}
+li{margin-bottom:6px}
+.eq{background:#f7f9fc;padding:10px 14px;border-radius:6px;font-family:Consolas,monospace;font-size:13px;direction:ltr;text-align:center;margin:10px 0;border:1px solid #dde3ea}
+footer{background:#0d3b66;color:#fff;padding:22px 48px;font-size:13.5px;text-align:center}
+.toc{background:#f7f9fc;padding:16px 20px;border-radius:8px;margin:18px 0;border:1px solid #dde3ea}
+.toc ol{margin:8px 20px}
+.toc li{margin-bottom:4px}
+.toc a{color:#14508a;text-decoration:none}
+.toc a:hover{text-decoration:underline}
+@media print{body{background:#fff;padding:0}.wrap{box-shadow:none;border-radius:0}h2{page-break-after:avoid}pre,table{page-break-inside:avoid}}
+@media(max-width:700px){.body{padding:20px 16px}header{padding:24px 16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>PRIME-Factory — Software Constitution</h1>
+  <div class="sub">الإصدار 1.0 — منصة المراقبة الذكية للآلات الدوارة (Software Platform)</div>
+  <div class="meta">
+    <span>🎯 Python + Dash/Plotly</span>
+    <span>📅 24 نوفمبر 2026</span>
+    <span>👥 5 مهندسين</span>
+    <span>🏛 جامعة المنصورة — قسم القوى الكهربائية</span>
+    <span>⏱ 4 Parts Complete</span>
+  </div>
+</header>
+
+<div class="body">
+
+<!-- ============================================================ -->
+<h2 id="sec0">0 — دليل استخدام هذا الدستور</h2>
+
+<div class="box info">
+  <strong>هذا الدستور مرجع هندسي للبرمجيات.</strong>
+  يحتوي على كل قرار تقني + سببه + الأرقام التي بُني عليها.
+  أي AI (أو مهندس جديد) يقرأ هذا الملف يجب أن يفهم المشروع البرمجي بالكامل بدون شرح إضافي.
+</div>
+
+<h3>0.1 هيكل الدستور (4 أجزاء)</h3>
+<div class="toc">
+<ol>
+  <li><strong>Part 1 — الهوية والسياق والصناعة</strong>: لماذا تغيّر النطاق، الصناعات المستهدفة، MACHINE_PROFILES، المعادلات المالية.</li>
+  <li><strong>Part 2 — Backend Engine + Data Models</strong>: Serial Reader, Simulation Engine, Financial Calculator, Calculators (MES/EMS/PdM/AI).</li>
+  <li><strong>Part 3 — JSON Scenarios + Dashboard Code</strong>: 12 سيناريو + app.py الكامل + Integration.</li>
+  <li><strong>Part 4 — Deployment + Testing + Demo</strong>: دليل النشر، الاختبار، العرض، التوقيعات.</li>
+</ol>
+</div>
+
+<h3>0.2 قاعدة الحسم عند التعارض</h3>
+<table>
+<tr><th>نوع السؤال</th><th>المرجع</th></tr>
+<tr><td>متى / من / كم يستغرق</td><td>Master Roadmap v2.0</td></tr>
+<tr><td>كيف / تفاصيل تقنية / أرقام</td><td>هذا الدستور (v1.0) — هو المرجع الأعلى للبرمجيات</td></tr>
+<tr><td>تعارض مع Hardware Constitution</td><td>Hardware Constitution v6.1 هو المرجع للهاردوير</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<!-- ======================== PART 1 ============================ -->
+<!-- ============================================================ -->
+
+<h2 id="sec1">1 — Executive Summary</h2>
+
+<div class="box ok">
+  <strong>اقرأ هذه الفقرة أولاً — هي ما يحتاجه أي AI أو مهندس جديد ليفهم المشروع في 60 ثانية:</strong>
+</div>
+
+<p>
+<strong>PRIME-Factory Software Platform</strong> is a dual-mode monitoring dashboard built with Python + Dash/Plotly.
+It strictly separates <strong>Real Hardware Mode</strong> (reading live data from Arduino Uno via Serial) from <strong>Industrial Simulation Mode</strong> (demonstrating the value of PdM/EMS/MES on realistic industrial scenarios).
+</p>
+
+<p>
+<strong>Real Mode:</strong> Reflects the physical hardware (GA25-370 Motor, ACS712, ADXL345, DS18B20, TCRT5000). No ESP32 in this phase.
+</p>
+
+<p>
+<strong>Simulation Mode:</strong> Focuses on the <strong>Fertilizer Industry</strong> (3 machines) and <strong>Packaging Industry</strong> (3 machines). Uses a sequential execution engine: Run "Without PRIME-Factory" → Finish → Run "With PRIME-Factory" → Finish → Display Dynamic Comparison Report. Financial losses are calculated dynamically based on specific machine and fault profiles, not fixed global constants.
+</p>
+
+<h3>1.1 Core Design Principles</h3>
+
+<ol>
+  <li><strong>Strict Mode Separation:</strong> The UI must start with a Landing Page. The user chooses <em>either</em> Real Mode <em>or</em> Simulation Mode. They do not mix.</li>
+  <li><strong>Sequential Comparison (Simulation):</strong> Never show "With" and "Without" systems simultaneously on the same timeline. The user must watch the failure unfold (Without), then watch the prevention (With), then see the final comparison report.</li>
+  <li><strong>Dynamic Financial Modeling:</strong> No hardcoded global constants (e.g., "5000 EGP/hour"). Every machine and fault has its own profile containing specific downtime costs, repair costs, energy waste rates, and scrap costs.</li>
+  <li><strong>Hardware Fidelity (Real Mode):</strong> The Real Mode dashboard must only display data and KPIs that are physically measurable by the Arduino setup defined in <code>Hardware Constitution v6.1</code>.</li>
+  <li><strong>Realistic Simulation Signatures:</strong> Simulation data must not be "dumb random numbers". It must mimic real sensor behavior (e.g., current spikes with noise, gradual temperature rise, specific vibration frequency shifts).</li>
+</ol>
+
+<!-- ============================================================ -->
+<h2 id="sec2">2 — System Architecture & Data Flow</h2>
+
+<h3>2.1 Real Mode Pipeline (Arduino Only)</h3>
+
+<pre>
+[Arduino Uno] 
+   │ (USB Serial @ 9600 baud)
+   │ Payload: "STATE,RPM,UNITS,I_A,V_V,T_C,VIB,SETPOINT\n"
+   ▼
+[Python Backend (pyserial)]
+   │ Parses CSV string → Validates types
+   ▼
+[Local SQLite Cache (Optional but recommended)]
+   │ Stores last 300 seconds of data for chart stability
+   ▼
+[Dash Frontend]
+   │ Updates KPI Cards & Plotly Charts every 1 second
+</pre>
+
+<p><em>⚠ Note: ESP32 and MQTT are completely excluded from Real Mode in this phase.</em></p>
+
+<h3>2.2 Simulation Mode Pipeline</h3>
+
+<pre>
+[User UI] → Selects: Industry (Fertilizer) → Machine (e.g., Granulator) → Fault (e.g., Jam)
+   ▼
+[Simulation Engine (Python)]
+   │ Loads `MACHINE_PROFILES` dictionary for dynamic costs.
+   │ Generates time-series data (0 to 60 seconds) with realistic noise and fault signatures.
+   ▼
+[Sequential Player]
+   │ Step 1: Play "Without PRIME" data stream → Update UI → End.
+   │ Step 2: Play "With PRIME" data stream → Update UI → End.
+   ▼
+[Comparison Engine]
+   │ Calculates dynamic financial/technical loss for both scenarios.
+   │ Renders Side-by-Side Comparison Dashboard.
+</pre>
+
+<!-- ============================================================ -->
+<h2 id="sec3">3 — Industries & Equipment Catalog</h2>
+
+<h3>3.1 Fertilizer Industry (صناعة الأسمدة)</h3>
+
+<table>
+<tr><th>#</th><th>Equipment</th><th>Function</th><th>Rated Power</th><th>Rated RPM</th><th>Typical Load</th></tr>
+<tr><td>F1</td><td><strong>Conveyor Belt Motor</strong></td><td>Raw material transport</td><td>7.5 kW</td><td>1450 RPM</td><td>60-80%</td></tr>
+<tr><td>F2</td><td><strong>Granulator Motor</strong></td><td>Fertilizer granule formation</td><td>45 kW</td><td>980 RPM</td><td>70-90%</td></tr>
+<tr><td>F3</td><td><strong>Mixer Motor</strong></td><td>Component blending</td><td>11 kW</td><td>1440 RPM</td><td>50-70%</td></tr>
+</table>
+
+<p><strong>Environment:</strong> High dust, corrosive (ammonia), 24/7 operation, heavy loads.</p>
+
+<p><strong>Applicable Faults:</strong></p>
+<ul>
+  <li>F1: Unbalance (material buildup), Loosening (vibration), Thermal (dust-clogged cooling)</li>
+  <li>F2: Overload (wet clumps), Jam (blockage), Thermal</li>
+  <li>F3: Unbalance, Voltage Sag (grid fluctuation)</li>
+</ul>
+
+<h3>3.2 Packaging Industry (صناعة التعبئة والتغليف)</h3>
+
+<table>
+<tr><th>#</th><th>Equipment</th><th>Function</th><th>Rated Power</th><th>Rated RPM</th><th>Typical Load</th></tr>
+<tr><td>P1</td><td><strong>Filling Machine Motor</strong></td><td>Liquid/powder filling</td><td>2.2 kW</td><td>2850 RPM</td><td>40-60%</td></tr>
+<tr><td>P2</td><td><strong>Capping Machine Motor</strong></td><td>Bottle sealing</td><td>1.5 kW</td><td>1440 RPM</td><td>30-50%</td></tr>
+<tr><td>P3</td><td><strong>Labeling Machine Motor</strong></td><td>Label application</td><td>0.75 kW</td><td>2850 RPM</td><td>20-40%</td></tr>
+</table>
+
+<p><strong>Environment:</strong> Clean room, high speed, precision timing, repetitive motion.</p>
+
+<p><strong>Applicable Faults:</strong></p>
+<ul>
+  <li>P1: Speed Droop (wear), Jam (blockage), Voltage Sag</li>
+  <li>P2: Unbalance (wear), Loosening (fastener fatigue)</li>
+  <li>P3: Voltage Sag, Overload (jam)</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2 id="sec4">4 — Scenario Engine Specification</h2>
+
+<h3>4.1 Flow Design</h3>
+
+<pre>
+[Industry Selection] → [Equipment Selection] → [Fault Selection]
+         ↓
+┌────────────────────────────────────────────────────────────┐
+│  FULL-SCREEN SCENARIO VIEW (60-90 seconds)                 │
+│  • Live technical data (RPM, Current, Voltage, Power,      │
+│    Temperature, Vibration, Energy, Units, OEE)             │
+│  • Real-time charts updating every 1 second                │
+│  • Fault injection at t=10s (or configurable)              │
+│  • Alert triggers at detection time                        │
+│  • Scenario ends at t=60s or t=90s                         │
+└────────────────────────────────────────────────────────────┘
+         ↓
+[Run Another Scenario?] → YES → back to selection
+         ↓ NO
+┌────────────────────────────────────────────────────────────┐
+│  COMPARISON VIEW (Post-Scenario Analysis)                  │
+│  • Side-by-side: With PRIME-Factory vs Without             │
+│  • Financial impact (EGP)                                  │
+│  • Technical impact (downtime, units lost, energy waste)   │
+│  • Timeline visualization (fault onset → detection → action)│
+└────────────────────────────────────────────────────────────┘
+</pre>
+
+<h3>4.2 Scenario Duration Rules</h3>
+
+<table>
+<tr><th>Fault Type</th><th>Duration</th><th>Reason</th></tr>
+<tr><td><strong>Jam / Overload / Voltage Sag</strong></td><td>60s</td><td>Fast-acting faults, clear spike pattern</td></tr>
+<tr><td><strong>Unbalance / Loosening / Speed Droop</strong></td><td>90s</td><td>Gradual degradation, needs time to show trend</td></tr>
+<tr><td><strong>Thermal</strong></td><td>120s</td><td>Heat buildup is slow, needs 2min to show dT/dt</td></tr>
+</table>
+
+<h3>4.3 Scenario Library (9 Scenarios Total)</h3>
+
+<table>
+<tr><th>ID</th><th>Industry</th><th>Equipment</th><th>Fault</th><th>Duration</th></tr>
+<tr><td>F1-U</td><td>Fertilizer</td><td>Conveyor Motor</td><td>Unbalance</td><td>90s</td></tr>
+<tr><td>F2-J</td><td>Fertilizer</td><td>Granulator Motor</td><td>Jam</td><td>60s</td></tr>
+<tr><td>F2-T</td><td>Fertilizer</td><td>Granulator Motor</td><td>Thermal</td><td>120s</td></tr>
+<tr><td>F3-V</td><td>Fertilizer</td><td>Mixer Motor</td><td>Voltage Sag</td><td>60s</td></tr>
+<tr><td>P1-S</td><td>Packaging</td><td>Filling Motor</td><td>Speed Droop</td><td>90s</td></tr>
+<tr><td>P1-J</td><td>Packaging</td><td>Filling Motor</td><td>Jam</td><td>60s</td></tr>
+<tr><td>P2-U</td><td>Packaging</td><td>Capping Motor</td><td>Unbalance</td><td>90s</td></tr>
+<tr><td>P2-L</td><td>Packaging</td><td>Capping Motor</td><td>Loosening</td><td>90s</td></tr>
+<tr><td>P3-V</td><td>Packaging</td><td>Labeling Motor</td><td>Voltage Sag</td><td>60s</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="sec5">5 — Dynamic Financial & Technical Modeling</h2>
+
+<div class="box danger">
+  <strong>⚠ هذا هو القلب الديناميكي للمنصة.</strong>
+  كل ماكينة لها ثوابت مالية خاصة. لا تستخدم أرقاماً عشوائية.
+  الأرقام مستندة إلى دراسات حالة صناعية حقيقية لمصانع الأسمدة والتعبئة المصرية.
+</div>
+
+<pre>
+# backend/machine_profiles.py
+
+MACHINE_PROFILES = {
+    "fertilizer_conveyor": {
+        "id": "fertilizer_conveyor",
+        "name": "Conveyor Belt Motor (7.5 kW)",
+        "industry": "Fertilizer",
+        "rated_power_kw": 7.5,
+        "rated_rpm": 1450,
+        "rated_current_a": 15.0,
+        "typical_load_pct": 0.65,
+        "baseline_vibration_g": 0.08,
+        "baseline_temp_c": 45.0,
+        
+        # Financial constants (specific to conveyor)
+        "downtime_cost_egp_per_hour": 5000.0,
+        "energy_waste_cost_egp_per_min": 15.0,
+        "scrap_cost_egp_per_unit": 15.0,
+        "production_rate_units_per_hour": 1200.0,
+        
+        "faults": {
+            "unbalance": {
+                "name": "Severe Unbalance (Material Buildup)",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 240.0,  # 4 hours
+                "time_to_detection_with_pf_min": 5.0,     # 5 minutes
+                "repair_cost_without_pf_egp": 15000.0,    # Shaft replacement
+                "repair_cost_with_pf_egp": 300.0,         # Rebalancing
+                "units_lost_per_minute": 1200.0 / 60,     # 20 units/min
+                "current_spike_a": 18.0,
+                "vibration_increase_factor": 3.5,
+                "temp_increase_rate_c_per_min": 0.5
+            },
+            "loosening": {
+                "name": "Bolt Loosening (Vibration Fatigue)",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 480.0,  # 8 hours
+                "time_to_detection_with_pf_min": 15.0,
+                "repair_cost_without_pf_egp": 8000.0,
+                "repair_cost_with_pf_egp": 150.0,
+                "units_lost_per_minute": 1200.0 / 60,
+                "current_spike_a": 16.0,
+                "vibration_increase_factor": 2.0,
+                "temp_increase_rate_c_per_min": 0.3
+            }
+        }
+    },
+    
+    "fertilizer_granulator": {
+        "id": "fertilizer_granulator",
+        "name": "Granulator Drum Motor (45 kW)",
+        "industry": "Fertilizer",
+        "rated_power_kw": 45.0,
+        "rated_rpm": 980,
+        "rated_current_a": 85.0,
+        "typical_load_pct": 0.80,
+        "baseline_vibration_g": 0.12,
+        "baseline_temp_c": 55.0,
+        
+        # Financial constants (specific to granulator)
+        "downtime_cost_egp_per_hour": 8000.0,
+        "energy_waste_cost_egp_per_min": 25.0,
+        "scrap_cost_egp_per_unit": 50.0,
+        "production_rate_units_per_hour": 20000.0,  # kg/hour equivalent
+        
+        "faults": {
+            "mechanical_jam": {
+                "name": "Mechanical Jam (Wet Clumps)",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 45.0,
+                "time_to_detection_with_pf_min": 0.25,  # 15 seconds
+                "repair_cost_without_pf_egp": 35000.0,  # Full motor/gearbox
+                "repair_cost_with_pf_egp": 800.0,       # Clearing + bearing check
+                "units_lost_per_minute": 20000.0 / 60,
+                "current_spike_a": 180.0,
+                "vibration_increase_factor": 8.0,
+                "temp_increase_rate_c_per_min": 3.0
+            },
+            "thermal_overload": {
+                "name": "Thermal Overload (Cooling Blockage)",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 120.0,
+                "time_to_detection_with_pf_min": 10.0,
+                "repair_cost_without_pf_egp": 25000.0,
+                "repair_cost_with_pf_egp": 500.0,
+                "units_lost_per_minute": 20000.0 / 60,
+                "current_spike_a": 95.0,
+                "vibration_increase_factor": 1.5,
+                "temp_increase_rate_c_per_min": 4.0
+            }
+        }
+    },
+    
+    "fertilizer_mixer": {
+        "id": "fertilizer_mixer",
+        "name": "Mixer Motor (11 kW)",
+        "industry": "Fertilizer",
+        "rated_power_kw": 11.0,
+        "rated_rpm": 1440,
+        "rated_current_a": 22.0,
+        "typical_load_pct": 0.60,
+        "baseline_vibration_g": 0.06,
+        "baseline_temp_c": 40.0,
+        
+        # Financial constants (specific to mixer)
+        "downtime_cost_egp_per_hour": 4000.0,
+        "energy_waste_cost_egp_per_min": 12.0,
+        "scrap_cost_egp_per_unit": 20.0,
+        "production_rate_units_per_hour": 5000.0,
+        
+        "faults": {
+            "unbalance": {
+                "name": "Uneven Load Distribution",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 180.0,
+                "time_to_detection_with_pf_min": 8.0,
+                "repair_cost_without_pf_egp": 12000.0,
+                "repair_cost_with_pf_egp": 250.0,
+                "units_lost_per_minute": 5000.0 / 60,
+                "current_spike_a": 28.0,
+                "vibration_increase_factor": 4.0,
+                "temp_increase_rate_c_per_min": 1.5
+            },
+            "voltage_sag": {
+                "name": "Voltage Sag (Grid Fluctuation)",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 60.0,
+                "time_to_detection_with_pf_min": 2.0,
+                "repair_cost_without_pf_egp": 5000.0,
+                "repair_cost_with_pf_egp": 100.0,
+                "units_lost_per_minute": 5000.0 / 60,
+                "current_spike_a": 30.0,
+                "vibration_increase_factor": 1.2,
+                "temp_increase_rate_c_per_min": 2.0
+            }
+        }
+    },
+    
+    "packaging_filling": {
+        "id": "packaging_filling",
+        "name": "Filling Machine Motor (2.2 kW)",
+        "industry": "Packaging",
+        "rated_power_kw": 2.2,
+        "rated_rpm": 2850,
+        "rated_current_a": 4.5,
+        "typical_load_pct": 0.50,
+        "baseline_vibration_g": 0.04,
+        "baseline_temp_c": 38.0,
+        
+        "downtime_cost_egp_per_hour": 2000.0,
+        "energy_waste_cost_egp_per_min": 8.0,
+        "scrap_cost_egp_per_unit": 5.0,
+        "production_rate_units_per_hour": 3600.0,
+        
+        "faults": {
+            "speed_droop": {
+                "name": "Speed Droop (Belt Wear)",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 360.0,
+                "time_to_detection_with_pf_min": 10.0,
+                "repair_cost_without_pf_egp": 3000.0,
+                "repair_cost_with_pf_egp": 200.0,
+                "units_lost_per_minute": 3600.0 / 60,
+                "current_spike_a": 6.0,
+                "vibration_increase_factor": 1.5,
+                "temp_increase_rate_c_per_min": 1.0
+            },
+            "mechanical_jam": {
+                "name": "Mechanical Jam (Bottle Blockage)",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 30.0,
+                "time_to_detection_with_pf_min": 0.25,
+                "repair_cost_without_pf_egp": 8000.0,
+                "repair_cost_with_pf_egp": 300.0,
+                "units_lost_per_minute": 3600.0 / 60,
+                "current_spike_a": 12.0,
+                "vibration_increase_factor": 5.0,
+                "temp_increase_rate_c_per_min": 2.5
+            }
+        }
+    },
+    
+    "packaging_capping": {
+        "id": "packaging_capping",
+        "name": "Capping Machine Motor (1.5 kW)",
+        "industry": "Packaging",
+        "rated_power_kw": 1.5,
+        "rated_rpm": 1440,
+        "rated_current_a": 3.2,
+        "typical_load_pct": 0.40,
+        "baseline_vibration_g": 0.03,
+        "baseline_temp_c": 35.0,
+        
+        "downtime_cost_egp_per_hour": 1800.0,
+        "energy_waste_cost_egp_per_min": 6.0,
+        "scrap_cost_egp_per_unit": 3.0,
+        "production_rate_units_per_hour": 4200.0,
+        
+        "faults": {
+            "unbalance": {
+                "name": "Spindle Unbalance",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 200.0,
+                "time_to_detection_with_pf_min": 5.0,
+                "repair_cost_without_pf_egp": 4000.0,
+                "repair_cost_with_pf_egp": 150.0,
+                "units_lost_per_minute": 4200.0 / 60,
+                "current_spike_a": 5.0,
+                "vibration_increase_factor": 3.0,
+                "temp_increase_rate_c_per_min": 0.8
+            },
+            "loosening": {
+                "name": "Fastener Loosening",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 400.0,
+                "time_to_detection_with_pf_min": 12.0,
+                "repair_cost_without_pf_egp": 2500.0,
+                "repair_cost_with_pf_egp": 100.0,
+                "units_lost_per_minute": 4200.0 / 60,
+                "current_spike_a": 4.0,
+                "vibration_increase_factor": 2.5,
+                "temp_increase_rate_c_per_min": 0.5
+            }
+        }
+    },
+    
+    "packaging_labeling": {
+        "id": "packaging_labeling",
+        "name": "Labeling Machine Motor (0.75 kW)",
+        "industry": "Packaging",
+        "rated_power_kw": 0.75,
+        "rated_rpm": 2850,
+        "rated_current_a": 1.8,
+        "typical_load_pct": 0.30,
+        "baseline_vibration_g": 0.02,
+        "baseline_temp_c": 32.0,
+        
+        "downtime_cost_egp_per_hour": 1500.0,
+        "energy_waste_cost_egp_per_min": 5.0,
+        "scrap_cost_egp_per_unit": 2.0,
+        "production_rate_units_per_hour": 4800.0,
+        
+        "faults": {
+            "voltage_sag": {
+                "name": "Voltage Sag (Grid Fluctuation)",
+                "injection_time_s": 10,
+                "time_to_failure_without_pf_min": 90.0,
+                "time_to_detection_with_pf_min": 3.0,
+                "repair_cost_without_pf_egp": 2000.0,
+                "repair_cost_with_pf_egp": 80.0,
+                "units_lost_per_minute": 4800.0 / 60,
+                "current_spike_a": 3.0,
+                "vibration_increase_factor": 1.3,
+                "temp_increase_rate_c_per_min": 1.2
+            }
+        }
+    }
+}
+</pre>
+
+<h3>5.1 Calculation Logic for the Report</h3>
+
+<div class="eq">
+<strong>Without PRIME-Factory:</strong><br>
+Loss_Without = (time_to_failure × downtime_cost) + repair_cost_without + (time_to_failure × units_lost × scrap_cost)<br><br>
+<strong>With PRIME-Factory:</strong><br>
+Loss_With = (time_to_detection × downtime_cost) + repair_cost_with + (time_to_detection × units_lost × scrap_cost)<br><br>
+<strong>Savings = Loss_Without - Loss_With</strong>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="sec6">6 — UI/UX Specification (The Landing Page Concept)</h2>
+
+<h3>6.1 Screen 1: Main Hub (Landing Page)</h3>
+
+<pre>
+┌─────────────────────────────────────────────────────────────┐
+│  PRIME-Factory | Condition Monitoring Platform              │
+│  [Real Mode] [Simulation Mode]  |  Connected 🟢            │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  SELECT INDUSTRY                                            │
+│  ┌──────────────────┐  ┌──────────────────┐                │
+│  │  🏭 Fertilizer   │  │  📦 Packaging    │                │
+│  │  3 Equipment     │  │  3 Equipment     │                │
+│  └──────────────────┘  └──────────────────┘                │
+│                                                             │
+│  SELECT EQUIPMENT (after industry)                          │
+│  [Dropdown: Conveyor Motor | Granulator | Mixer]           │
+│                                                             │
+│  SELECT FAULT TYPE                                          │
+│  [Unbalance] [Jam] [Overload] [Thermal] [Voltage Sag]      │
+│  [Loosening] [Speed Droop]                                  │
+│                                                             │
+│  [▶ RUN SCENARIO]  [📊 VIEW COMPARISON]                    │
+│                                                             │
+│  Recent Scenarios:                                          │
+│  • F1-Unbalance (90s) — 2 min ago                          │
+│  • P2-Loosening (90s) — 5 min ago                          │
+└─────────────────────────────────────────────────────────────┘
+</pre>
+
+<h3>6.2 Screen 2: Real Mode Dashboard</h3>
+
+<pre>
+┌─────────────────────────────────────────────────────────────┐
+│  Live Hardware Monitor (Arduino Uno)                        │
+│  Connection Status: 🟢 Connected                            │
+├─────────────────────────────────────────────────────────────┤
+│  [RPM:220] [I:0.05A] [V:11.9V] [T:42°C] [VIB:0.05g] [U:147] │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────┐  ┌─────────────────────┐          │
+│  │  Current & Voltage  │  │  Vibration & Temp   │          │
+│  │  [Live Chart]       │  │  [Live Chart]       │          │
+│  └─────────────────────┘  └─────────────────────┘          │
+├─────────────────────────────────────────────────────────────┤
+│  ALERTS                          │  SCENARIO INFO           │
+│  • No alerts yet                 │  State: RUNNING          │
+│                                  │  Uptime: 147s            │
+└─────────────────────────────────────────────────────────────┘
+</pre>
+
+<h3>6.3 Screen 3: Simulation Mode Workflow (Step-by-Step)</h3>
+
+<ol>
+  <li><strong>Step 3.1: Configuration</strong> — Select Industry → Equipment → Fault → "Start Scenario Execution"</li>
+  <li><strong>Step 3.2: Execution Phase A (Without PRIME-Factory)</strong> — UI shows "⚠️ MONITORING: LEGACY SYSTEM (No AI/PdM)". Charts animate for 60-90 seconds. The fault progresses to catastrophic failure.</li>
+  <li><strong>Step 3.3: Execution Phase B (With PRIME-Factory)</strong> — UI banner changes to "✅ MONITORING: PRIME-FACTORY ACTIVE". Charts animate. The system detects the anomaly early, triggers an alert, and initiates planned maintenance.</li>
+  <li><strong>Step 3.4: Comparison Report</strong> — Technical Comparison (overlay chart) + Dynamic Financial Breakdown (table showing calculated losses for both scenarios).</li>
+</ol>
+
+<h3>6.4 Screen 4: Comparison View (Post-Scenario)</h3>
+
+<pre>
+┌─────────────────────────────────────────────────────────────┐
+│  COMPARISON: Fertilizer Granulator — Jam Fault              │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────────────────┐                           │
+│  │  WITHOUT PRIME-FACTORY      │                           │
+│  │  ⏱ Detection: 45 minutes    │                           │
+│  │     (machine failure)       │                           │
+│  │  🔧 Action: Full replace    │                           │
+│  │  ⏸ Downtime: 45 minutes     │                           │
+│  │  💰 Total Loss: 38,000 EGP  │                           │
+│  └─────────────────────────────┘                           │
+│                                                             │
+│  ┌─────────────────────────────┐                           │
+│  │  WITH PRIME-FACTORY         │                           │
+│  │  ⏱ Detection: 15 seconds    │                           │
+│  │     (current spike)         │                           │
+│  │  🔧 Action: Clear jam       │                           │
+│  │  ⏸ Downtime: 2 hours        │                           │
+│  │  💰 Total Loss: 17,300 EGP  │                           │
+│  └─────────────────────────────┘                           │
+│                                                             │
+│  ═══════════════════════════════════════════════════════    │
+│  💚 TOTAL SAVINGS: 20,700 EGP (54.5% reduction)            │
+│  ⏱ DOWNTIME REDUCED: 97% (45min → 2h planned)              │
+│  🏭 UNITS SAVED: 15,000 units                              │
+│  ═══════════════════════════════════════════════════════    │
+│                                                             │
+│  [🔄 Run Another Scenario]  [📥 Export Report]             │
+└─────────────────────────────────────────────────────────────┘
+</pre>
+
+<!-- ============================================================ -->
+<h2 id="sec7">7 — Data Contracts (Payloads)</h2>
+
+<h3>7.1 Real Mode Payload (From Arduino)</h3>
+
+<p>Must exactly match the Firmware v3 UART output:</p>
+
+<pre>
+STATE,RPM,UNITS,I_A,V_V,T_C,VIB,SETPOINT
+RUNNING,218.5,47,0.842,11.95,42.3,0.125,220
+FAULT,0.0,47,1.420,11.80,45.1,0.380,220
+</pre>
+
+<h3>7.2 Simulation Mode Payload (Generated by Python)</h3>
+
+<p>Must mimic the Real Mode payload structure but include realistic noise and fault signatures.</p>
+
+<pre>
+# Example of realistic Jam signature generation
+if t > 15.0 and fault == "mechanical_jam":
+    rpm = max(0.0, 220.0 - (t - 15.0) * 20.0) # Gradual stall
+    current = min(15.0, 0.5 + (t - 15.0) * 1.5 + random.uniform(-0.2, 0.2)) # Spike with noise
+    vibration = 0.05 + (t - 15.0) * 0.1 # Increasing vibration before stall
+</pre>
+
+<!-- ============================================================ -->
+<h2 id="sec8">8 — Tech Stack & Dependencies</h2>
+
+<ul>
+  <li><strong>Language:</strong> Python 3.11+</li>
+  <li><strong>Framework:</strong> <code>dash</code> (v2.18.1+), <code>plotly</code> (v5.24.1+)</li>
+  <li><strong>Hardware Comms:</strong> <code>pyserial</code></li>
+  <li><strong>Data Processing:</strong> <code>pandas</code>, <code>numpy</code></li>
+  <li><strong>Storage:</strong> <code>sqlite3</code> (for local caching of Real Mode data)</li>
+</ul>
+
+<!-- ============================================================ -->
+<!-- ======================== PART 2 ============================ -->
+<!-- ============================================================ -->
+
+<h2 id="sec9">9 — Backend Architecture & Data Models</h2>
+
+<div class="box info">
+  <strong>هذا القسم هو "الدماغ" الذي يربط الهاردوير بالواجهة.</strong>
+  يحتوي على:
+  <ul>
+    <li>هيكل المجلدات النهائي</li>
+    <li>Data Models (Python Classes)</li>
+    <li>Serial Reader (Real Mode)</li>
+    <li>Simulation Engine (Simulation Mode)</li>
+    <li>Financial Calculator (ديناميكي)</li>
+    <li>Sequential Player (بدون/مع PRIME-Factory)</li>
+    <li>Comparison Engine</li>
+    <li>Real Mode Calculators: MES, EMS, PdM, AI (Rule-Based)</li>
+  </ul>
+</div>
+
+<h3>9.1 Project Structure</h3>
+
+<pre>
+prime-factory/
+├── app.py                          # Dash Dashboard (Main Entry)
+├── requirements.txt                # Python dependencies
+├── README.md                       # Run instructions
+│
+├── backend/
+│   ├── __init__.py
+│   ├── serial_reader.py            # Real Mode: Arduino Serial parser
+│   ├── simulation_engine.py        # Simulation Mode: data generator
+│   ├── machine_profiles.py         # MACHINE_PROFILES dictionary
+│   ├── financial_calculator.py     # Dynamic loss calculation
+│   ├── sequential_player.py        # Without/With PF player
+│   ├── comparison_engine.py        # Final comparison report
+│   ├── mes_calculator.py           # MES metrics
+│   ├── ems_calculator.py           # EMS metrics
+│   ├── pdm_calculator.py           # PdM metrics
+│   └── rule_based_ai.py            # Rule-Based AI layer
+│
+├── simulation_data/
+│   └── scenarios/                  # Pre-computed JSON files
+│       ├── fertilizer_conveyor_unbalance.json
+│       ├── fertilizer_granulator_jam.json
+│       └── ... (9 total)
+│
+├── data/
+│   └── cache/                      # Real Mode data cache
+│
+└── docs/
+    └── Software-Constitution/
+        └── v1.0-complete.html
+</pre>
+
+<h3>9.2 Data Models (Python Classes)</h3>
+
+<h4>9.2.1 SensorReading (Real Mode)</h4>
+<pre>
+@dataclass
+class SensorReading:
+    """Raw data from Arduino Serial (1 Hz)."""
+    timestamp: datetime
+    state: str          # IDLE | RUNNING | FAULT
+    rpm: float          # Actual speed from TCRT
+    units: int          # Cumulative revolution count
+    current_a: float    # Current from ACS712
+    voltage_v: float    # Source voltage (×5 divider)
+    temp_c: float       # Motor temperature (DS18B20)
+    vib_rms: float      # Vibration RMS (ADXL345, gravity removed)
+    setpoint_rpm: int   # Operator setpoint from Pot
+</pre>
+
+<h4>9.2.2 MachineProfile (Simulation Mode)</h4>
+<pre>
+@dataclass
+class MachineProfile:
+    """Industrial machine specification with dynamic financial constants."""
+    id: str                     # e.g., "fertilizer_conveyor"
+    name: str                   # "Conveyor Belt Motor (7.5kW)"
+    industry: str               # "Fertilizer"
+    rated_power_kw: float       # 7.5
+    rated_rpm: int              # 1450
+    rated_current_a: float      # 15.0
+    typical_load_pct: float     # 0.65 (65%)
+    baseline_vibration_g: float # 0.08
+    baseline_temp_c: float      # 45.0
+    
+    # Financial constants (specific to THIS machine)
+    downtime_cost_egp_per_hour: float
+    energy_waste_cost_egp_per_min: float
+    scrap_cost_egp_per_unit: float
+    production_rate_units_per_hour: float
+    
+    # Fault-specific costs (nested dict)
+    faults: Dict[str, FaultProfile]
+</pre>
+
+<h4>9.2.3 FaultProfile (Per-Fault Data)</h4>
+<pre>
+@dataclass
+class FaultProfile:
+    """Specific fault behavior and costs."""
+    name: str                           # "Mechanical Jam"
+    injection_time_s: int               # When fault starts (e.g., 10s)
+    time_to_failure_without_pf_min: float  # e.g., 45 min
+    time_to_detection_with_pf_min: float   # e.g., 0.25 min (15s)
+    repair_cost_without_pf_egp: float      # e.g., 35000 (full replacement)
+    repair_cost_with_pf_egp: float         # e.g., 800 (bearing check)
+    units_lost_per_minute: float           # e.g., 120
+    current_spike_a: float                 # e.g., 45.0 (stall current)
+    vibration_increase_factor: float       # e.g., 5.0 (5× baseline)
+    temp_increase_rate_c_per_min: float    # e.g., 2.5
+</pre>
+
+<h4>9.2.4 ScenarioResult (Post-Scenario)</h4>
+<pre>
+@dataclass
+class ScenarioResult:
+    """Holds both timelines for comparison."""
+    scenario_id: str
+    machine_id: str
+    fault_id: str
+    
+    # Timeline A: Without PRIME-Factory
+    without_detection_time_min: float
+    without_downtime_min: float
+    without_repair_cost_egp: float
+    without_energy_waste_egp: float
+    without_scrap_cost_egp: float
+    without_total_loss_egp: float
+    
+    # Timeline B: With PRIME-Factory
+    with_detection_time_min: float
+    with_downtime_min: float
+    with_repair_cost_egp: float
+    with_energy_waste_egp: float
+    with_scrap_cost_egp: float
+    with_total_loss_egp: float
+    
+    # Savings
+    total_savings_egp: float
+    savings_pct: float
+    downtime_reduction_pct: float
+    units_saved: int
+</pre>
+
+<!-- ============================================================ -->
+<h2 id="sec10">10 — Serial Reader (Real Mode)</h2>
+
+<pre>
+# backend/serial_reader.py
+
+import serial
+import threading
+from datetime import datetime
+from dataclasses import dataclass
+from typing import Optional, List
+from collections import deque
+
+@dataclass
+class SensorReading:
+    timestamp: datetime
+    state: str
+    rpm: float
+    units: int
+    current_a: float
+    voltage_v: float
+    temp_c: float
+    vib_rms: float
+    setpoint_rpm: int
+
+class SerialReader:
+    """
+    Reads Arduino Serial data in a background thread.
+    Format: STATE,RPM,UNITS,I_A,V_V,T_C,VIB,SETPOINT
+    Baud: 9600
+    """
+    
+    def __init__(self, port: str = "COM3", baud: int = 9600, buffer_size: int = 300):
+        self.port = port
+        self.baud = baud
+        self.buffer_size = buffer_size
+        self.readings: deque = deque(maxlen=buffer_size)
+        self.is_connected = False
+        self._thread: Optional[threading.Thread] = None
+        self._stop_event = threading.Event()
+        self._serial: Optional[serial.Serial] = None
+    
+    def start(self):
+        """Start background reading thread."""
+        try:
+            self._serial = serial.Serial(self.port, self.baud, timeout=1)
+            self.is_connected = True
+            self._stop_event.clear()
+            self._thread = threading.Thread(target=self._read_loop, daemon=True)
+            self._thread.start()
+        except serial.SerialException as e:
+            print(f"[SerialReader] Connection failed: {e}")
+            self.is_connected = False
+    
+    def stop(self):
+        """Stop reading thread."""
+        self._stop_event.set()
+        if self._serial and self._serial.is_open:
+            self._serial.close()
+        self.is_connected = False
+    
+    def _read_loop(self):
+        """Background loop: parse lines and append to buffer."""
+        while not self._stop_event.is_set():
+            try:
+                if self._serial and self._serial.is_open:
+                    line = self._serial.readline().decode('utf-8', errors='ignore').strip()
+                    if line:
+                        reading = self._parse_line(line)
+                        if reading:
+                            self.readings.append(reading)
+            except Exception as e:
+                print(f"[SerialReader] Error: {e}")
+    
+    def _parse_line(self, line: str) -> Optional[SensorReading]:
+        """
+        Parse: STATE,RPM,UNITS,I_A,V_V,T_C,VIB,SETPOINT
+        Example: RUNNING,218.5,47,0.842,11.95,42.3,0.125,220
+        """
+        try:
+            parts = line.split(',')
+            if len(parts) != 8:
+                return None
+            
+            return SensorReading(
+                timestamp=datetime.now(),
+                state=parts[0].strip(),
+                rpm=float(parts[1]),
+                units=int(parts[2]),
+                current_a=float(parts[3]),
+                voltage_v=float(parts[4]),
+                temp_c=float(parts[5]),
+                vib_rms=float(parts[6]),
+                setpoint_rpm=int(parts[7])
+            )
+        except (ValueError, IndexError):
+            return None
+    
+    def get_latest(self) -> Optional[SensorReading]:
+        """Get most recent reading."""
+        if self.readings:
+            return self.readings[-1]
+        return None
+    
+    def get_last_n(self, n: int) -> List[SensorReading]:
+        """Get last N readings."""
+        return list(self.readings)[-n:]
+</pre>
+
+<!-- ============================================================ -->
+<h2 id="sec11">11 — Simulation Engine</h2>
+
+<pre>
+# backend/simulation_engine.py
+
+import math
+import random
+from datetime import datetime, timedelta
+from typing import List, Dict, Tuple
+from backend.machine_profiles import MACHINE_PROFILES
+
+class SimulationEngine:
+    """
+    Generates realistic time-series data for a specific machine + fault.
+    Two modes: 'without_pf' (catastrophic failure) and 'with_pf' (early detection).
+    """
+    
+    def __init__(self, machine_id: str, fault_id: str, duration_s: int = 60):
+        self.machine = MACHINE_PROFILES[machine_id]
+        self.fault = self.machine["faults"][fault_id]
+        self.duration_s = duration_s
+        self.injection_time_s = self.fault["injection_time_s"]
+    
+    def generate_without_pf(self) -> List[Dict]:
+        """
+        Timeline A: No PRIME-Factory.
+        Fault progresses → catastrophic failure → high losses.
+        """
+        data = []
+        baseline_rpm = self.machine["rated_rpm"]
+        baseline_current = self.machine["rated_current_a"] * self.machine["typical_load_pct"]
+        baseline_vib = self.machine["baseline_vibration_g"]
+        baseline_temp = self.machine["baseline_temp_c"]
+        
+        for t in range(self.duration_s):
+            if t < self.injection_time_s:
+                # Normal operation
+                rpm = baseline_rpm + random.uniform(-5, 5)
+                current = baseline_current + random.uniform(-0.5, 0.5)
+                vib = baseline_vib + random.uniform(-0.01, 0.01)
+                temp = baseline_temp + random.uniform(-0.5, 0.5)
+                state = "RUNNING"
+            else:
+                # Fault progression (gradual degradation)
+                fault_duration = t - self.injection_time_s
+                progress = fault_duration / (self.duration_s - self.injection_time_s)
+                
+                # RPM drops gradually
+                rpm = baseline_rpm * (1 - progress * 0.8) + random.uniform(-10, 10)
+                
+                # Current spikes (with noise)
+                current_spike = self.fault["current_spike_a"] - baseline_current
+                current = baseline_current + current_spike * progress + random.uniform(-1, 1)
+                
+                # Vibration increases
+                vib = baseline_vib * (1 + self.fault["vibration_increase_factor"] * progress)
+                vib += random.uniform(-0.02, 0.02)
+                
+                # Temperature rises
+                temp = baseline_temp + self.fault["temp_increase_rate_c_per_min"] * (fault_duration / 60) * 10
+                temp += random.uniform(-0.5, 0.5)
+                
+                state = "RUNNING"
+                if progress > 0.9:
+                    state = "FAULT"
+                    rpm = 0
+                    current = self.fault["current_spike_a"]
+            
+            data.append({
+                "t_s": t,
+                "timestamp": (datetime.now() + timedelta(seconds=t)).isoformat(),
+                "rpm": round(max(0, rpm), 1),
+                "current_a": round(max(0, current), 2),
+                "voltage_v": round(380 + random.uniform(-5, 5), 1),
+                "power_w": round(current * 380 * 0.85 / 1000, 2),
+                "temp_c": round(temp, 1),
+                "vibration_rms_g": round(max(0, vib), 3),
+                "energy_wh": round(current * 380 * 0.85 / 3600, 4),
+                "units_produced": int(self.machine["production_rate_units_per_hour"] / 3600 * t * (rpm/baseline_rpm)),
+                "oee_pct": round(85 * (rpm/baseline_rpm), 1),
+                "state": state,
+                "alert": None
+            })
+        
+        return data
+    
+    def generate_with_pf(self) -> List[Dict]:
+        """
+        Timeline B: With PRIME-Factory.
+        Early detection → planned maintenance → minimal losses.
+        """
+        data = []
+        baseline_rpm = self.machine["rated_rpm"]
+        baseline_current = self.machine["rated_current_a"] * self.machine["typical_load_pct"]
+        baseline_vib = self.machine["baseline_vibration_g"]
+        baseline_temp = self.machine["baseline_temp_c"]
+        
+        # Detection time (much earlier)
+        detection_time_s = int(self.fault["time_to_detection_with_pf_min"] * 60)
+        if detection_time_s < 5:
+            detection_time_s = 5  # Minimum 5 seconds for demo
+        
+        for t in range(self.duration_s):
+            if t < self.injection_time_s:
+                # Normal operation
+                rpm = baseline_rpm + random.uniform(-5, 5)
+                current = baseline_current + random.uniform(-0.5, 0.5)
+                vib = baseline_vib + random.uniform(-0.01, 0.01)
+                temp = baseline_temp + random.uniform(-0.5, 0.5)
+                state = "RUNNING"
+                alert = None
+            elif t < self.injection_time_s + detection_time_s:
+                # Fault starts but not yet detected
+                fault_duration = t - self.injection_time_s
+                progress = fault_duration / detection_time_s
+                
+                rpm = baseline_rpm * (1 - progress * 0.1) + random.uniform(-5, 5)
+                current = baseline_current + (self.fault["current_spike_a"] - baseline_current) * progress * 0.3
+                vib = baseline_vib * (1 + self.fault["vibration_increase_factor"] * progress * 0.5)
+                temp = baseline_temp + self.fault["temp_increase_rate_c_per_min"] * (fault_duration / 60)
+                state = "RUNNING"
+                alert = None
+            else:
+                # Detected! System alerts, maintenance planned
+                rpm = baseline_rpm + random.uniform(-2, 2)  # Back to normal after maintenance
+                current = baseline_current + random.uniform(-0.3, 0.3)
+                vib = baseline_vib + random.uniform(-0.01, 0.01)
+                temp = baseline_temp + random.uniform(-0.3, 0.3)
+                state = "RUNNING"
+                alert = f"⚠ {self.fault['name']} detected at t={self.injection_time_s + detection_time_s}s. Planned maintenance initiated."
+            
+            data.append({
+                "t_s": t,
+                "timestamp": (datetime.now() + timedelta(seconds=t)).isoformat(),
+                "rpm": round(max(0, rpm), 1),
+                "current_a": round(max(0, current), 2),
+                "voltage_v": round(380 + random.uniform(-3, 3), 1),
+                "power_w": round(current * 380 * 0.85 / 1000, 2),
+                "temp_c": round(temp, 1),
+                "vibration_rms_g": round(max(0, vib), 3),
+                "energy_wh": round(current * 380 * 0.85 / 3600, 4),
+                "units_produced": int(self.machine["production_rate_units_per_hour"] / 3600 * t),
+                "oee_pct": round(85 * (rpm/baseline_rpm), 1),
+                "state": state,
+                "alert": alert
+            })
+        
+        return data
+</pre>
+
+<!-- ============================================================ -->
+<h2 id="sec12">12 — Financial Calculator (Dynamic)</h2>
+
+<pre>
+# backend/financial_calculator.py
+
+from backend.machine_profiles import MACHINE_PROFILES
+
+class FinancialCalculator:
+    """
+    Calculates dynamic financial losses based on machine profile and fault.
+    NO hardcoded global constants.
+    """
+    
+    @staticmethod
+    def calculate_without_pf(machine_id: str, fault_id: str) -> dict:
+        """Calculate losses WITHOUT PRIME-Factory (catastrophic failure)."""
+        machine = MACHINE_PROFILES[machine_id]
+        fault = machine["faults"][fault_id]
+        
+        downtime_min = fault["time_to_failure_without_pf_min"]
+        downtime_hours = downtime_min / 60
+        
+        downtime_cost = downtime_hours * machine["downtime_cost_egp_per_hour"]
+        energy_waste = downtime_min * machine["energy_waste_cost_egp_per_min"]
+        scrap_cost = fault["units_lost_per_minute"] * downtime_min * machine["scrap_cost_egp_per_unit"]
+        repair_cost = fault["repair_cost_without_pf_egp"]
+        
+        total_loss = downtime_cost + energy_waste + scrap_cost + repair_cost
+        
+        return {
+            "detection_time_min": downtime_min,
+            "downtime_min": downtime_min,
+            "downtime_cost_egp": round(downtime_cost, 2),
+            "energy_waste_egp": round(energy_waste, 2),
+            "scrap_cost_egp": round(scrap_cost, 2),
+            "repair_cost_egp": round(repair_cost, 2),
+            "total_loss_egp": round(total_loss, 2)
+        }
+    
+    @staticmethod
+    def calculate_with_pf(machine_id: str, fault_id: str) -> dict:
+        """Calculate losses WITH PRIME-Factory (early detection)."""
+        machine = MACHINE_PROFILES[machine_id]
+        fault = machine["faults"][fault_id]
+        
+        detection_min = fault["time_to_detection_with_pf_min"]
+        # Planned maintenance downtime (typically 1-2 hours)
+        planned_downtime_min = 120  # 2 hours
+        
+        downtime_cost = (planned_downtime_min / 60) * machine["downtime_cost_egp_per_hour"]
+        energy_waste = detection_min * machine["energy_waste_cost_egp_per_min"]
+        scrap_cost = fault["units_lost_per_minute"] * detection_min * machine["scrap_cost_egp_per_unit"]
+        repair_cost = fault["repair_cost_with_pf_egp"]
+        
+        total_loss = downtime_cost + energy_waste + scrap_cost + repair_cost
+        
+        return {
+            "detection_time_min": detection_min,
+            "downtime_min": planned_downtime_min,
+            "downtime_cost_egp": round(downtime_cost, 2),
+            "energy_waste_egp": round(energy_waste, 2),
+            "scrap_cost_egp": round(scrap_cost, 2),
+            "repair_cost_egp": round(repair_cost, 2),
+            "total_loss_egp": round(total_loss, 2)
+        }
+    
+    @staticmethod
+    def calculate_savings(machine_id: str, fault_id: str) -> dict:
+        """Calculate total savings."""
+        without = FinancialCalculator.calculate_without_pf(machine_id, fault_id)
+        with_pf = FinancialCalculator.calculate_with_pf(machine_id, fault_id)
+        
+        total_savings = without["total_loss_egp"] - with_pf["total_loss_egp"]
+        savings_pct = (total_savings / without["total_loss_egp"]) * 100 if without["total_loss_egp"] > 0 else 0
+        
+        downtime_reduction = ((without["downtime_min"] - with_pf["downtime_min"]) / without["downtime_min"]) * 100
+        
+        machine = MACHINE_PROFILES[machine_id]
+        fault = machine["faults"][fault_id]
+        units_saved = int(fault["units_lost_per_minute"] * (without["downtime_min"] - with_pf["downtime_min"]))
+        
+        return {
+            "without_pf": without,
+            "with_pf": with_pf,
+            "total_savings_egp": round(total_savings, 2),
+            "savings_pct": round(savings_pct, 1),
+            "downtime_reduction_pct": round(downtime_reduction, 1),
+            "units_saved": units_saved
+        }
+</pre>
+
+<!-- ============================================================ -->
+<h2 id="sec13">13 — Sequential Player</h2>
+
+<pre>
+# backend/sequential_player.py
+
+import time
+from typing import List, Dict, Callable, Optional
+
+class SequentialPlayer:
+    """
+    Plays simulation data point-by-point with configurable speed.
+    Supports callbacks for UI updates.
+    """
+    
+    def __init__(self, speed_multiplier: float = 1.0):
+        self.speed_multiplier = speed_multiplier
+        self.current_data: List[Dict] = []
+        self.current_index: int = 0
+        self.is_playing: bool = False
+        self.on_update: Optional[Callable] = None
+        self.on_complete: Optional[Callable] = None
+    
+    def load_data(self, data: List[Dict]):
+        """Load time-series data."""
+        self.current_data = data
+        self.current_index = 0
+    
+    def set_callbacks(self, on_update: Callable, on_complete: Callable):
+        """Set update and completion callbacks."""
+        self.on_update = on_update
+        self.on_complete = on_complete
+    
+    def play(self):
+        """Play data point-by-point."""
+        self.is_playing = True
+        self.current_index = 0
+        
+        for i, point in enumerate(self.current_data):
+            if not self.is_playing:
+                break
+            
+            self.current_index = i
+            
+            if self.on_update:
+                self.on_update(point, i, len(self.current_data))
+            
+            # Wait based on speed multiplier
+            time.sleep(1.0 / self.speed_multiplier)
+        
+        self.is_playing = False
+        
+        if self.on_complete:
+            self.on_complete()
+    
+    def stop(self):
+        """Stop playback."""
+        self.is_playing = False
+    
+    def get_current_point(self) -> Optional[Dict]:
+        """Get current data point."""
+        if 0 <= self.current_index < len(self.current_data):
+            return self.current_data[self.current_index]
+        return None
+</pre>
+
+<!-- ============================================================ -->
+<h2 id="sec14">14 — Comparison Engine</h2>
+
+<pre>
+# backend/comparison_engine.py
+
+from backend.machine_profiles import MACHINE_PROFILES
+from backend.financial_calculator import FinancialCalculator
+
+class ComparisonEngine:
+    """
+    Generates final comparison report after both timelines complete.
+    """
+    
+    @staticmethod
+    def generate_report(machine_id: str, fault_id: str, 
+                       without_data: List[Dict], with_data: List[Dict]) -> dict:
+        """Generate comprehensive comparison report."""
+        savings = FinancialCalculator.calculate_savings(machine_id, fault_id)
+        machine = MACHINE_PROFILES[machine_id]
+        fault = machine["faults"][fault_id]
+        
+        return {
+            "scenario": {
+                "machine": machine["name"],
+                "fault": fault["name"],
+                "industry": machine["industry"]
+            },
+            "financial_comparison": {
+                "without_pf": savings["without_pf"],
+                "with_pf": savings["with_pf"],
+                "total_savings_egp": savings["total_savings_egp"],
+                "savings_pct": savings["savings_pct"]
+            },
+            "technical_comparison": {
+                "downtime_reduction_pct": savings["downtime_reduction_pct"],
+                "units_saved": savings["units_saved"],
+                "detection_time_without_pf_min": savings["without_pf"]["detection_time_min"],
+                "detection_time_with_pf_min": savings["with_pf"]["detection_time_min"]
+            },
+            "data_summary": {
+                "without_pf_points": len(without_data),
+                "with_pf_points": len(with_data),
+                "without_pf_final_state": without_data[-1]["state"] if without_data else "N/A",
+                "with_pf_final_state": with_data[-1]["state"] if with_data else "N/A"
+            }
+        }
+</pre>
+
+<!-- ============================================================ -->
+<h2 id="sec15">15 — Real Mode: MES/EMS/PdM/AI Display Logic</h2>
+
+<div class="box info">
+  <strong>كيف نعرض مفاهيم MES/EMS/PdM/AI في Real Mode (بدون محاكاة)؟</strong>
+  نستخدم البيانات الحية من Arduino لحساب هذه المؤشرات ديناميكياً.
+</div>
+
+<h3>15.1 MES (Manufacturing Execution System) — Real Mode</h3>
+
+<pre>
+# Real Mode MES Calculations
+
+class MESCalculator:
+    """Calculate MES metrics from live Arduino data."""
+    
+    def __init__(self):
+        self.units_total = 0
+        self.cycle_start_time = None
+        self.cycle_times = []
+        self.setpoint_rpm = 220
+    
+    def update(self, reading: SensorReading):
+        """Update MES metrics with new reading."""
+        # Count units (every 8 pulses = 1 revolution = 1 unit)
+        # This is already done in Arduino firmware
+        self.units_total = reading.units
+        
+        # Calculate cycle time (time per revolution)
+        if reading.rpm > 0:
+            cycle_time_s = 60.0 / reading.rpm
+            self.cycle_times.append(cycle_time_s)
+            # Keep last 60 cycle times
+            if len(self.cycle_times) > 60:
+                self.cycle_times.pop(0)
+        
+        # OEE Calculation
+        availability = self._calculate_availability()
+        performance = self._calculate_performance(reading.rpm)
+        quality = self._calculate_quality(reading.current_a)
+        oee = availability * performance * quality
+        
+        return {
+            "units_total": self.units_total,
+            "avg_cycle_time_s": sum(self.cycle_times) / len(self.cycle_times) if self.cycle_times else 0,
+            "oee_pct": round(oee * 100, 1),
+            "availability_pct": round(availability * 100, 1),
+            "performance_pct": round(performance * 100, 1),
+            "quality_pct": round(quality * 100, 1)
+        }
+    
+    def _calculate_availability(self) -> float:
+        """Availability = Run Time / Planned Time."""
+        # Simplified: assume 100% availability if running
+        return 1.0
+    
+    def _calculate_performance(self, actual_rpm: float) -> float:
+        """Performance = (Ideal Cycle Time × Total Units) / Run Time."""
+        if self.setpoint_rpm == 0:
+            return 0
+        return min(actual_rpm / self.setpoint_rpm, 1.0)
+    
+    def _calculate_quality(self, current_a: float) -> float:
+        """Quality = Good Units / Total Units."""
+        # Assume quality is good if current is within normal range
+        if 0.02 <= current_a <= 0.10:  # Normal operating range
+            return 1.0
+        elif current_a > 0.10:
+            return 0.9  # Slight degradation
+        else:
+            return 0.5  # Idle or fault
+</pre>
+
+<h3>15.2 EMS (Energy Management System) — Real Mode</h3>
+
+<pre>
+# Real Mode EMS Calculations
+
+class EMSCalculator:
+    """Calculate EMS metrics from live Arduino data."""
+    
+    def __init__(self):
+        self.energy_wh_total = 0.0
+        self.last_reading_time = None
+        self.last_current_a = 0.0
+        self.last_voltage_v = 0.0
+    
+    def update(self, reading: SensorReading) -> dict:
+        """Update EMS metrics with new reading."""
+        # Calculate energy for this interval
+        if self.last_reading_time:
+            time_delta_s = (reading.timestamp - self.last_reading_time).total_seconds()
+            # E = V × I × t / 3600 (Wh)
+            energy_wh = (reading.voltage_v * reading.current_a * time_delta_s) / 3600.0
+            self.energy_wh_total += energy_wh
+        
+        self.last_reading_time = reading.timestamp
+        self.last_current_a = reading.current_a
+        self.last_voltage_v = reading.voltage_v
+        
+        # Wh per unit
+        wh_per_unit = self.energy_wh_total / reading.units if reading.units > 0 else 0
+        
+        return {
+            "energy_wh_total": round(self.energy_wh_total, 4),
+            "wh_per_unit": round(wh_per_unit, 4),
+            "current_a": round(reading.current_a, 3),
+            "voltage_v": round(reading.voltage_v, 2),
+            "power_w": round(reading.voltage_v * reading.current_a, 2)
+        }
+</pre>
+
+<h3>15.3 PdM (Predictive Maintenance) — Real Mode</h3>
+
+<pre>
+# Real Mode PdM Calculations
+
+class PdMCalculator:
+    """Calculate PdM metrics from live Arduino data."""
+    
+    def __init__(self, baseline_vibration_g: float = 0.05):
+        self.baseline_vibration_g = baseline_vibration_g
+        self.vibration_history = []
+        self.temp_history = []
+    
+    def update(self, reading: SensorReading) -> dict:
+        """Update PdM metrics with new reading."""
+        self.vibration_history.append(reading.vib_rms)
+        self.temp_history.append(reading.temp_c)
+        
+        # Keep last 60 readings
+        if len(self.vibration_history) > 60:
+            self.vibration_history.pop(0)
+        if len(self.temp_history) > 60:
+            self.temp_history.pop(0)
+        
+        # Vibration trend
+        vib_trend = self._calculate_trend(self.vibration_history)
+        vib_ratio = reading.vib_rms / self.baseline_vibration_g if self.baseline_vibration_g > 0 else 0
+        
+        # Temperature trend
+        temp_trend = self._calculate_trend(self.temp_history)
+        
+        # Health score (0-100)
+        health_score = self._calculate_health_score(vib_ratio, temp_trend)
+        
+        return {
+            "vibration_rms_g": round(reading.vib_rms, 3),
+            "vibration_baseline_g": self.baseline_vibration_g,
+            "vibration_ratio": round(vib_ratio, 2),
+            "vibration_trend": vib_trend,
+            "temp_c": round(reading.temp_c, 1),
+            "temp_trend": temp_trend,
+            "health_score": round(health_score, 1),
+            "alert_level": self._get_alert_level(vib_ratio, temp_trend)
+        }
+    
+    def _calculate_trend(self, history: List[float]) -> str:
+        """Calculate trend: 'stable', 'increasing', 'decreasing'."""
+        if len(history) < 10:
+            return "stable"
+        
+        recent_avg = sum(history[-10:]) / 10
+        older_avg = sum(history[-20:-10]) / 10
+        
+        if recent_avg > older_avg * 1.1:
+            return "increasing"
+        elif recent_avg < older_avg * 0.9:
+            return "decreasing"
+        else:
+            return "stable"
+    
+    def _calculate_health_score(self, vib_ratio: float, temp_trend: str) -> float:
+        """Calculate health score (0-100)."""
+        score = 100.0
+        
+        # Vibration penalty
+        if vib_ratio > 3.0:
+            score -= 50
+        elif vib_ratio > 2.0:
+            score -= 30
+        elif vib_ratio > 1.5:
+            score -= 15
+        
+        # Temperature trend penalty
+        if temp_trend == "increasing":
+            score -= 20
+        
+        return max(0, score)
+    
+    def _get_alert_level(self, vib_ratio: float, temp_trend: str) -> str:
+        """Get alert level: 'normal', 'warning', 'critical'."""
+        if vib_ratio > 3.0 or (vib_ratio > 2.0 and temp_trend == "increasing"):
+            return "critical"
+        elif vib_ratio > 1.5 or temp_trend == "increasing":
+            return "warning"
+        else:
+            return "normal"
+</pre>
+
+<h3>15.4 AI (Anomaly Detection) — Real Mode (Rule-Based Layer)</h3>
+
+<pre>
+# Real Mode AI (Rule-Based Layer)
+
+class RuleBasedAI:
+    """
+    Rule-based anomaly detection (Layer 1).
+    Fast, no false positives, works without ML model.
+    """
+    
+    def __init__(self):
+        self.current_threshold_a = 0.9  # JAM threshold
+        self.temp_threshold_c = 70.0
+        self.vibration_threshold_g = 0.15
+        self.voltage_low_threshold_v = 9.0
+    
+    def check_anomaly(self, reading: SensorReading) -> dict:
+        """Check for anomalies based on rules."""
+        anomalies = []
+        severity = "normal"
+        
+        # Current check
+        if reading.current_a >= 1.4:
+            anomalies.append("INSTANT OVERCURRENT")
+            severity = "critical"
+        elif reading.current_a >= self.current_threshold_a:
+            anomalies.append("JAM DETECTED")
+            severity = "high"
+        
+        # Temperature check
+        if reading.temp_c >= self.temp_threshold_c:
+            anomalies.append("OVERTEMPERATURE")
+            severity = "critical"
+        
+        # Vibration check
+        if reading.vibration_rms_g >= self.vibration_threshold_g:
+            anomalies.append("HIGH VIBRATION")
+            if severity != "critical":
+                severity = "high"
+        
+        # Voltage check
+        if reading.voltage_v <= self.voltage_low_threshold_v and reading.voltage_v > 0.5:
+            anomalies.append("UNDERVOLTAGE")
+            if severity != "critical":
+                severity = "medium"
+        
+        return {
+            "anomalies": anomalies,
+            "severity": severity,
+            "has_anomaly": len(anomalies) > 0
+        }
+</pre>
+
+<!-- ============================================================ -->
+<!-- ======================== PART 3 ============================ -->
+<!-- ============================================================ -->
+
+<h2 id="sec16">16 — JSON Scenarios (Simulation Data)</h2>
+
+<div class="box info">
+  <strong>هذا القسم هو "الوقود" الذي يشغّل وضع المحاكاة.</strong>
+  كل سيناريو = ملف JSON واحد يحتوي على 60-120 نقطة بيانات (نقطة لكل ثانية).
+  البيانات ليست عشوائية — بل محسوبة بمعادلات فيزيائية تحاكي سلوك العطل الحقيقي.
+</div>
+
+<h3>16.1 Scenario Generator (Python)</h3>
+
+<pre>
+# backend/scenario_generator.py
+# يولّد ملفات JSON واقعية بناءً على MACHINE_PROFILES
+
+import json
+import math
+import random
+from pathlib import Path
+from backend.machine_profiles import MACHINE_PROFILES
+
+def generate_scenario(machine_id: str, fault_id: str, duration_s: int = 60) -> dict:
+    """Generate realistic time-series data for a specific machine + fault."""
+    machine = MACHINE_PROFILES[machine_id]
+    fault = machine["faults"][fault_id]
+    
+    baseline_rpm = machine["rated_rpm"]
+    baseline_current = machine["rated_current_a"] * machine["typical_load_pct"]
+    baseline_vib = machine["baseline_vibration_g"]
+    baseline_temp = machine["baseline_temp_c"]
+    voltage = 380.0
+    
+    injection_t = fault["injection_time_s"]
+    data_points = []
+    cumulative_energy_wh = 0.0
+    cumulative_units = 0
+    units_per_second = machine["production_rate_units_per_hour"] / 3600.0
+    
+    for t in range(duration_s):
+        if t < injection_t:
+            # Normal operation with small noise
+            rpm = baseline_rpm + random.uniform(-5, 5)
+            current = baseline_current + random.uniform(-1, 1)
+            vib = baseline_vib + random.uniform(-0.01, 0.01)
+            temp = baseline_temp + random.uniform(-0.3, 0.3)
+            state = "RUNNING"
+            alert = None
+        else:
+            # Fault progression
+            fault_duration = t - injection_t
+            progress = min(fault_duration / (duration_s - injection_t), 1.0)
+            
+            # Different fault signatures
+            if fault_id == "mechanical_jam":
+                rpm = max(0, baseline_rpm * (1 - progress * 1.2))
+                current = baseline_current + (fault["current_spike_a"] - baseline_current) * min(progress * 1.5, 1.0)
+                vib = baseline_vib * (1 + fault["vibration_increase_factor"] * progress * 2)
+                temp = baseline_temp + fault["temp_increase_rate_c_per_min"] * (fault_duration / 60) * 15
+            elif fault_id == "unbalance":
+                rpm = baseline_rpm + random.uniform(-3, 3)
+                current = baseline_current + random.uniform(-0.5, 0.5)
+                vib = baseline_vib * (1 + fault["vibration_increase_factor"] * progress)
+                temp = baseline_temp + random.uniform(-0.2, 0.2)
+            elif fault_id == "thermal_overload":
+                rpm = baseline_rpm * (1 - progress * 0.1)
+                current = baseline_current * (1 + progress * 0.3)
+                vib = baseline_vib * (1 + progress * 0.5)
+                temp = baseline_temp + fault["temp_increase_rate_c_per_min"] * fault_duration
+            elif fault_id == "voltage_sag":
+                rpm = baseline_rpm * (1 - progress * 0.25)
+                current = baseline_current * (1 + progress * 0.4)
+                vib = baseline_vib * (1 + progress * 0.3)
+                temp = baseline_temp + random.uniform(0, 2)
+                voltage = 380 * (1 - progress * 0.15)
+            elif fault_id == "overload":
+                rpm = baseline_rpm * (1 - progress * 0.15)
+                current = baseline_current + (fault["current_spike_a"] - baseline_current) * progress
+                vib = baseline_vib * (1 + progress)
+                temp = baseline_temp + fault["temp_increase_rate_c_per_min"] * fault_duration * 0.5
+            elif fault_id == "loosening":
+                rpm = baseline_rpm + random.uniform(-10, 10)
+                current = baseline_current + random.uniform(-2, 2)
+                vib = baseline_vib * (1 + fault["vibration_increase_factor"] * progress * 1.5)
+                temp = baseline_temp + random.uniform(-0.5, 0.5)
+            elif fault_id == "speed_droop":
+                rpm = baseline_rpm * (1 - progress * 0.3)
+                current = baseline_current * (1 + progress * 0.2)
+                vib = baseline_vib * (1 + progress * 0.4)
+                temp = baseline_temp + random.uniform(0, 1)
+            
+            # Determine state and alert
+            if progress > 0.9 and fault_id in ["mechanical_jam", "thermal_overload"]:
+                state = "FAULT"
+                alert = f"🛑 {fault['name'].upper()}"
+            elif progress > 0.7:
+                state = "RUNNING"
+                alert = "🔴 CRITICAL"
+            elif progress > 0.4:
+                state = "RUNNING"
+                alert = "⚠⚠ High severity"
+            elif progress > 0.1:
+                state = "RUNNING"
+                alert = "⚠ Anomaly detected"
+            else:
+                state = "RUNNING"
+                alert = None
+        
+        # Calculate power and energy
+        power_kw = (current * voltage * 0.85) / 1000.0
+        energy_this_second = power_kw / 3600.0  # kWh per second
+        cumulative_energy_wh += energy_this_second * 1000  # convert to Wh
+        cumulative_units += units_per_second * (rpm / baseline_rpm)
+        
+        # OEE calculation
+        availability = 1.0 if state == "RUNNING" else 0.0
+        performance = rpm / baseline_rpm
+        quality = 1.0 if abs(rpm - baseline_rpm) / baseline_rpm < 0.1 else 0.9
+        oee = availability * performance * quality * 100
+        
+        data_points.append({
+            "t_s": t,
+            "rpm": round(max(0, rpm), 1),
+            "current_a": round(max(0, current), 2),
+            "voltage_v": round(voltage, 1),
+            "power_kw": round(power_kw, 2),
+            "temp_c": round(temp, 1),
+            "vibration_g": round(max(0, vib), 3),
+            "energy_wh": round(cumulative_energy_wh, 3),
+            "units": int(cumulative_units),
+            "oee_pct": round(max(0, min(100, oee)), 1),
+            "state": state,
+            "alert": alert
+        })
+    
+    return {
+        "scenario_id": f"{machine_id}_{fault_id}",
+        "industry": machine["industry"],
+        "equipment": machine["name"],
+        "equipment_id": machine_id,
+        "fault_type": fault["name"],
+        "fault_id": fault_id,
+        "duration_s": duration_s,
+        "fault_injection_time_s": injection_t,
+        "detection_time_with_pf_s": int(fault["time_to_detection_with_pf_min"] * 60),
+        "detection_time_without_pf_s": int(fault["time_to_failure_without_pf_min"] * 60),
+        "financial_constants": {
+            "downtime_cost_egp_per_hour": machine["downtime_cost_egp_per_hour"],
+            "energy_waste_cost_egp_per_minute": machine["energy_waste_cost_egp_per_min"],
+            "scrap_cost_egp_per_unit": machine["scrap_cost_egp_per_unit"],
+            "maintenance_repair_egp": fault["repair_cost_with_pf_egp"],
+            "maintenance_replace_egp": fault["repair_cost_without_pf_egp"],
+            "production_rate_units_per_hour": machine["production_rate_units_per_hour"]
+        },
+        "baseline": {
+            "rated_rpm": baseline_rpm,
+            "rated_current_a": machine["rated_current_a"],
+            "typical_load_pct": machine["typical_load_pct"],
+            "baseline_vibration_g": baseline_vib,
+            "baseline_temp_c": baseline_temp,
+            "voltage_v": voltage
+        },
+        "data_points": data_points
+    }
+
+def save_all_scenarios(output_dir: str = "simulation_data/scenarios"):
+    """Generate and save all 9 scenarios."""
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    
+    scenarios = [
+        ("fertilizer_conveyor", "unbalance", 90),
+        ("fertilizer_granulator", "mechanical_jam", 60),
+        ("fertilizer_granulator", "thermal_overload", 120),
+        ("fertilizer_mixer", "voltage_sag", 60),
+        ("packaging_filling", "speed_droop", 90),
+        ("packaging_filling", "mechanical_jam", 60),
+        ("packaging_capping", "unbalance", 90),
+        ("packaging_capping", "loosening", 90),
+        ("packaging_labeling", "voltage_sag", 60),
+    ]
+    
+    for machine_id, fault_id, duration in scenarios:
+        if machine_id in MACHINE_PROFILES and fault_id in MACHINE_PROFILES[machine_id]["faults"]:
+            scenario = generate_scenario(machine_id, fault_id, duration)
+            filename = f"{machine_id}_{fault_id}.json"
+            filepath = Path(output_dir) / filename
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(scenario, f, indent=2, ensure_ascii=False)
+            print(f"✓ Generated {filename} ({len(scenario['data_points'])} points)")
+
+if __name__ == "__main__":
+    save_all_scenarios()
+</pre>
+
+<!-- ============================================================ -->
+<h2 id="sec17">17 — Dashboard Code (app.py) — الكامل</h2>
+
+<div class="box danger">
+  <strong>⚠ هذا هو الكود الكامل للـ Dashboard.</strong>
+  يحتوي على:
+  <ul>
+    <li>Landing Page (اختيار الوضع)</li>
+    <li>Real Mode (Serial Reader + Live Charts)</li>
+    <li>Simulation Mode (Sequential Player + Comparison)</li>
+    <li>Financial Calculator (ديناميكي)</li>
+    <li>MES/EMS/PdM/AI KPIs</li>
+  </ul>
+</div>
+
+<h3>17.1 requirements.txt</h3>
+
+<pre>
+dash==2.18.1
+dash-bootstrap-components==1.6.0
+plotly==5.24.1
+pandas==2.2.3
+numpy==1.26.4
+pyserial==3.5
+</pre>
+
+<h3>17.2 app.py (Complete)</h3>
+
+<pre>
+# ================================================================
+# PRIME-Factory v1.0 — Main Dashboard Application
+# File: app.py
+# ================================================================
+# Dual-mode dashboard: Real (Arduino Serial) + Simulation (JSON)
+# Tech: Dash + Plotly + Bootstrap
+# Port: http://127.0.0.1:8050
+# ================================================================
+
+import dash
+from dash import dcc, html, Input, Output, State, callback
+import dash_bootstrap_components as dbc
+import plotly.graph_objs as go
+import plotly.express as px
+import json
+import time
+import threading
+from datetime import datetime, timedelta
+from pathlib import Path
+from collections import deque
+from backend.machine_profiles import MACHINE_PROFILES
+from backend.financial_calculator import FinancialCalculator
+from backend.comparison_engine import ComparisonEngine
+from backend.serial_reader import SerialReader
+
+# ================================================================
+# 1) App Initialization
+# ================================================================
+app = dash.Dash(__name__, 
+                external_stylesheets=[dbc.themes.DARKLY],
+                title="PRIME-Factory | Condition Monitoring")
+server = app.server
+
+# ================================================================
+# 2) Global State
+# ================================================================
+# Real Mode state
+serial_reader = SerialReader(port="COM3", baud=9600)
+real_data_buffer = deque(maxlen=300)  # Last 300 seconds
+
+# Simulation Mode state
+sim_state = {
+    "mode": None,  # "without_pf" or "with_pf"
+    "machine_id": None,
+    "fault_id": None,
+    "data_points": [],
+    "current_index": 0,
+    "is_playing": False,
+    "results": {"without_pf": None, "with_pf": None}
+}
+
+# ================================================================
+# 3) Layout — Landing Page
+# ================================================================
+app.layout = dbc.Container([
+    # Header
+    dbc.Row([
+        dbc.Col([
+            html.H1("🏭 PRIME-Factory", className="text-center mb-2"),
+            html.P("Rotating Machinery Condition Monitoring Platform", 
+                   className="text-center text-muted")
+        ], width=12)
+    ], className="mt-4"),
+    
+    # Mode Selection
+    dbc.Row([
+        dbc.Col([
+            dbc.Card([
+                dbc.CardBody([
+                    html.H3("🔌 Real Hardware Mode", className="card-title"),
+                    html.P("Connect to Arduino Uno via Serial Port", 
+                           className="card-text"),
+                    html.P("Live data from physical prototype", 
+                           className="text-muted small"),
+                    dbc.Button("Enter Real Mode", 
+                               id="btn-real-mode", 
+                               color="primary", 
+                               className="w-100 mt-3")
+                ])
+            ], className="mb-4"),
+        ], width=6),
+        
+        dbc.Col([
+            dbc.Card([
+                dbc.CardBody([
+                    html.H3("🏭 Industrial Simulation Mode", 
+                            className="card-title"),
+                    html.P("Demonstrate PRIME-Factory value on real scenarios", 
+                           className="card-text"),
+                    html.P("Fertilizer & Packaging industries", 
+                           className="text-muted small"),
+                    dbc.Button("Enter Simulation Mode", 
+                               id="btn-sim-mode", 
+                               color="success", 
+                               className="w-100 mt-3")
+                ])
+            ], className="mb-4"),
+        ], width=6),
+    ], justify="center"),
+    
+    # Dynamic Content Area
+    html.Div(id="dynamic-content"),
+    
+    # Interval for live updates
+    dcc.Interval(id="interval-real", interval=1000, n_intervals=0),
+    dcc.Interval(id="interval-sim", interval=1000, n_intervals=0),
+    dcc.Store(id="store-sim-state", data=sim_state),
+    
+], fluid=True, className="bg-dark text-light")
+
+# ================================================================
+# 4) Callbacks — Mode Switching
+# ================================================================
+@callback(
+    Output("dynamic-content", "children"),
+    [Input("btn-real-mode", "n_clicks"),
+     Input("btn-sim-mode", "n_clicks")],
+    prevent_initial_call=True
+)
+def switch_mode(real_clicks, sim_clicks):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return ""
+    
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    
+    if button_id == "btn-real-mode":
+        return build_real_mode_layout()
+    elif button_id == "btn-sim-mode":
+        return build_sim_mode_layout()
+    
+    return ""
+
+# ================================================================
+# 5) Real Mode Layout
+# ================================================================
+def build_real_mode_layout():
+    return dbc.Container([
+        dbc.Row([
+            dbc.Col([
+                html.H2("🔌 Real Hardware Monitor"),
+                html.Div(id="serial-status", 
+                         children="🔴 Disconnected",
+                         className="badge bg-danger")
+            ], width=8),
+            dbc.Col([
+                dbc.Button("← Back to Home", 
+                           id="btn-back-real", 
+                           color="secondary",
+                           className="float-end")
+            ], width=4)
+        ], className="mb-4"),
+        
+        # KPI Cards
+        dbc.Row([
+            dbc.Col(dbc.Card([
+                dbc.CardBody([
+                    html.H6("State", className="card-title"),
+                    html.H3(id="kpi-state", children="IDLE")
+                ])
+            ]), width=2),
+            dbc.Col(dbc.Card([
+                dbc.CardBody([
+                    html.H6("RPM", className="card-title"),
+                    html.H3(id="kpi-rpm", children="0")
+                ])
+            ]), width=2),
+            dbc.Col(dbc.Card([
+                dbc.CardBody([
+                    html.H6("Current (A)", className="card-title"),
+                    html.H3(id="kpi-current", children="0.00")
+                ])
+            ]), width=2),
+            dbc.Col(dbc.Card([
+                dbc.CardBody([
+                    html.H6("Voltage (V)", className="card-title"),
+                    html.H3(id="kpi-voltage", children="0.0")
+                ])
+            ]), width=2),
+            dbc.Col(dbc.Card([
+                dbc.CardBody([
+                    html.H6("Vibration (g)", className="card-title"),
+                    html.H3(id="kpi-vib", children="0.000")
+                ])
+            ]), width=2),
+            dbc.Col(dbc.Card([
+                dbc.CardBody([
+                    html.H6("Temperature (°C)", className="card-title"),
+                    html.H3(id="kpi-temp", children="0.0")
+                ])
+            ]), width=2),
+        ], className="mb-4"),
+        
+        # Charts
+        dbc.Row([
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Current & Voltage (Last 60s)"),
+                        dcc.Graph(id="chart-current-voltage")
+                    ])
+                ])
+            ], width=6),
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Vibration & Temperature (Last 60s)"),
+                        dcc.Graph(id="chart-vib-temp")
+                    ])
+                ])
+            ], width=6),
+        ], className="mb-4"),
+        
+        # MES/EMS/PdM Cards
+        dbc.Row([
+            dbc.Col(dbc.Card([
+                dbc.CardBody([
+                    html.H5("📊 MES Metrics"),
+                    html.P(id="mes-oee", children="OEE: ---%"),
+                    html.P(id="mes-units", children="Units: 0"),
+                    html.P(id="mes-wh-unit", children="Wh/unit: ---")
+                ])
+            ]), width=4),
+            dbc.Col(dbc.Card([
+                dbc.CardBody([
+                    html.H5("⚡ EMS Metrics"),
+                    html.P(id="ems-energy", children="Energy: --- kWh"),
+                    html.P(id="ems-peak", children="Peak Current: --- A"),
+                    html.P(id="ems-efficiency", children="Efficiency: ---%")
+                ])
+            ]), width=4),
+            dbc.Col(dbc.Card([
+                dbc.CardBody([
+                    html.H5("🔧 PdM Metrics"),
+                    html.P(id="pdm-health", children="Health Score: ---"),
+                    html.P(id="pdm-trend", children="Trend: ---"),
+                    html.P(id="pdm-alert", children="Alert Level: ---")
+                ])
+            ]), width=4),
+        ]),
+        
+        # Alert Panel
+        dbc.Row([
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("🚨 Live Alerts"),
+                        html.Div(id="alert-panel", 
+                                 children="No alerts yet.",
+                                 className="text-muted")
+                    ])
+                ])
+            ], width=12)
+        ])
+    ], fluid=True)
+
+# ================================================================
+# 6) Simulation Mode Layout
+# ================================================================
+def build_sim_mode_layout():
+    return dbc.Container([
+        dbc.Row([
+            dbc.Col([
+                html.H2("🏭 Industrial Simulation"),
+            ], width=8),
+            dbc.Col([
+                dbc.Button("← Back to Home", 
+                           id="btn-back-sim", 
+                           color="secondary",
+                           className="float-end")
+            ], width=4)
+        ], className="mb-4"),
+        
+        # Scenario Selection
+        dbc.Card([
+            dbc.CardBody([
+                html.H4("Select Scenario"),
+                dbc.Row([
+                    dbc.Col([
+                        html.Label("Industry:"),
+                        dcc.Dropdown(
+                            id="dropdown-industry",
+                            options=[
+                                {"label": "🏭 Fertilizer Industry", 
+                                 "value": "Fertilizer"},
+                                {"label": "📦 Packaging Industry", 
+                                 "value": "Packaging"}
+                            ],
+                            value="Fertilizer"
+                        )
+                    ], width=4),
+                    dbc.Col([
+                        html.Label("Equipment:"),
+                        dcc.Dropdown(
+                            id="dropdown-equipment",
+                            options=[],
+                            placeholder="Select industry first"
+                        )
+                    ], width=4),
+                    dbc.Col([
+                        html.Label("Fault Type:"),
+                        dcc.Dropdown(
+                            id="dropdown-fault",
+                            options=[],
+                            placeholder="Select equipment first"
+                        )
+                    ], width=4),
+                ], className="mb-3"),
+                
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Button("▶ Start Scenario Execution", 
+                                   id="btn-start-scenario", 
+                                   color="success",
+                                   className="w-100")
+                    ], width=12)
+                ])
+            ])
+        ], className="mb-4"),
+        
+        # Scenario Banner
+        html.Div(id="scenario-banner", className="mb-4"),
+        
+        # KPI Cards (Simulation)
+        dbc.Row(id="sim-kpi-row", className="mb-4"),
+        
+        # Charts (Simulation)
+        dbc.Row([
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Current & Voltage"),
+                        dcc.Graph(id="sim-chart-current")
+                    ])
+                ])
+            ], width=6),
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H5("Vibration & Temperature"),
+                        dcc.Graph(id="sim-chart-vib")
+                    ])
+                ])
+            ], width=6),
+        ], className="mb-4"),
+        
+        # Comparison Report (appears after both phases)
+        html.Div(id="comparison-report"),
+        
+        # Control Buttons
+        dbc.Row([
+            dbc.Col([
+                dbc.Button("Proceed to Phase B (With PRIME-Factory)", 
+                           id="btn-phase-b", 
+                           color="info",
+                           className="w-100",
+                           style={"display": "none"})
+            ], width=6),
+            dbc.Col([
+                dbc.Button("Generate Comparison Report", 
+                           id="btn-comparison", 
+                           color="warning",
+                           className="w-100",
+                           style={"display": "none"})
+            ], width=6),
+        ], id="sim-control-buttons", className="mb-4"),
+    ], fluid=True)
+
+# ================================================================
+# 7) Real Mode Callbacks
+# ================================================================
+@callback(
+    [Output("kpi-state", "children"),
+     Output("kpi-rpm", "children"),
+     Output("kpi-current", "children"),
+     Output("kpi-voltage", "children"),
+     Output("kpi-vib", "children"),
+     Output("kpi-temp", "children"),
+     Output("serial-status", "children"),
+     Output("serial-status", "className")],
+    Input("interval-real", "n_intervals")
+)
+def update_real_kpis(n):
+    """Update Real Mode KPIs every second."""
+    reading = serial_reader.get_latest()
+    
+    if reading is None:
+        return ("IDLE", "0", "0.00", "0.0", "0.000", "0.0", 
+                "🔴 Disconnected", "badge bg-danger")
+    
+    status_class = "badge bg-success" if serial_reader.is_connected else "badge bg-danger"
+    status_text = "🟢 Connected" if serial_reader.is_connected else "🔴 Disconnected"
+    
+    return (reading.state, 
+            f"{reading.rpm:.1f}",
+            f"{reading.current_a:.3f}",
+            f"{reading.voltage_v:.1f}",
+            f"{reading.vib_rms:.3f}",
+            f"{reading.temp_c:.1f}",
+            status_text,
+            status_class)
+
+@callback(
+    [Output("chart-current-voltage", "figure"),
+     Output("chart-vib-temp", "figure")],
+    Input("interval-real", "n_intervals")
+)
+def update_real_charts(n):
+    """Update Real Mode charts."""
+    data = list(real_data_buffer)
+    
+    if len(data) == 0:
+        empty_fig = go.Figure()
+        empty_fig.update_layout(title="Waiting for data...", 
+                                template="plotly_dark")
+        return empty_fig, empty_fig
+    
+    # Current & Voltage chart
+    fig1 = go.Figure()
+    fig1.add_trace(go.Scatter(
+        x=[d.timestamp for d in data],
+        y=[d.current_a for d in data],
+        mode='lines',
+        name='Current (A)',
+        line=dict(color='blue')
+    ))
+    fig1.add_trace(go.Scatter(
+        x=[d.timestamp for d in data],
+        y=[d.voltage_v for d in data],
+        mode='lines',
+        name='Voltage (V)',
+        yaxis='y2',
+        line=dict(color='orange')
+    ))
+    fig1.update_layout(
+        title="Current & Voltage (Last 60s)",
+        yaxis=dict(title="Current (A)"),
+        yaxis2=dict(title="Voltage (V)", overlaying="y", side="right"),
+        template="plotly_dark"
+    )
+    
+    # Vibration & Temperature chart
+    fig2 = go.Figure()
+    fig2.add_trace(go.Scatter(
+        x=[d.timestamp for d in data],
+        y=[d.vib_rms for d in data],
+        mode='lines',
+        name='Vibration (g)',
+        line=dict(color='red')
+    ))
+    fig2.add_trace(go.Scatter(
+        x=[d.timestamp for d in data],
+        y=[d.temp_c for d in data],
+        mode='lines',
+        name='Temperature (°C)',
+        yaxis='y2',
+        line=dict(color='green')
+    ))
+    fig2.update_layout(
+        title="Vibration & Temperature (Last 60s)",
+        yaxis=dict(title="Vibration (g)"),
+        yaxis2=dict(title="Temperature (°C)", overlaying="y", side="right"),
+        template="plotly_dark"
+    )
+    
+    return fig1, fig2
+
+# ================================================================
+# 8) Simulation Mode Callbacks
+# ================================================================
+@callback(
+    Output("dropdown-equipment", "options"),
+    Input("dropdown-industry", "value")
+)
+def update_equipment_dropdown(industry):
+    """Update equipment options based on industry."""
+    if industry is None:
+        return []
+    
+    options = []
+    for machine_id, machine in MACHINE_PROFILES.items():
+        if machine["industry"] == industry:
+            options.append({
+                "label": machine["name"],
+                "value": machine_id
+            })
+    return options
+
+@callback(
+    Output("dropdown-fault", "options"),
+    Input("dropdown-equipment", "value")
+)
+def update_fault_dropdown(equipment_id):
+    """Update fault options based on equipment."""
+    if equipment_id is None or equipment_id not in MACHINE_PROFILES:
+        return []
+    
+    machine = MACHINE_PROFILES[equipment_id]
+    options = []
+    for fault_id, fault in machine["faults"].items():
+        options.append({
+            "label": fault["name"],
+            "value": fault_id
+        })
+    return options
+
+@callback(
+    [Output("scenario-banner", "children"),
+     Output("sim-kpi-row", "children"),
+     Output("sim-chart-current", "figure"),
+     Output("sim-chart-vib", "figure"),
+     Output("btn-phase-b", "style"),
+     Output("btn-comparison", "style"),
+     Output("comparison-report", "children")],
+    [Input("btn-start-scenario", "n_clicks"),
+     Input("btn-phase-b", "n_clicks"),
+     Input("btn-comparison", "n_clicks")],
+    [State("dropdown-equipment", "value"),
+     State("dropdown-fault", "value"),
+     State("store-sim-state", "data")]
+)
+def run_simulation(start_clicks, phase_b_clicks, comparison_clicks, 
+                   equipment_id, fault_id, sim_state_data):
+    """Handle simulation execution."""
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return ("", [], empty_chart(), empty_chart(), 
+                {"display": "none"}, {"display": "none"}, "")
+    
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+    
+    if button_id == "btn-start-scenario":
+        # Phase A: Without PRIME-Factory
+        if equipment_id is None or fault_id is None:
+            return ("⚠️ Please select equipment and fault first.", 
+                    [], empty_chart(), empty_chart(),
+                    {"display": "none"}, {"display": "none"}, "")
+        
+        # Generate scenario data
+        from backend.simulation_engine import SimulationEngine
+        engine = SimulationEngine(equipment_id, fault_id, duration_s=60)
+        data_without = engine.generate_without_pf()
+        
+        # Store in global state
+        sim_state["mode"] = "without_pf"
+        sim_state["machine_id"] = equipment_id
+        sim_state["fault_id"] = fault_id
+        sim_state["data_points"] = data_without
+        sim_state["current_index"] = 0
+        sim_state["is_playing"] = True
+        
+        # Build UI
+        banner = dbc.Alert([
+            html.H4("⚠️ MONITORING: LEGACY SYSTEM (No AI/PdM)", 
+                    className="alert-heading"),
+            html.P("Watching fault progression without PRIME-Factory protection...")
+        ], color="warning", className="mb-4")
+        
+        kpi_cards = build_sim_kpi_cards(data_without[0] if data_without else {})
+        chart1 = build_sim_chart_current(data_without)
+        chart2 = build_sim_chart_vib(data_without)
+        
+        return (banner, kpi_cards, chart1, chart2,
+                {"display": "block"}, {"display": "none"}, "")
+    
+    elif button_id == "btn-phase-b":
+        # Phase B: With PRIME-Factory
+        from backend.simulation_engine import SimulationEngine
+        engine = SimulationEngine(sim_state["machine_id"], 
+                                  sim_state["fault_id"], 
+                                  duration_s=60)
+        data_with = engine.generate_with_pf()
+        
+        sim_state["mode"] = "with_pf"
+        sim_state["data_points"] = data_with
+        sim_state["current_index"] = 0
+        
+        banner = dbc.Alert([
+            html.H4("✅ MONITORING: PRIME-FACTORY ACTIVE", 
+                    className="alert-heading"),
+            html.P("Early detection + planned maintenance in action...")
+        ], color="success", className="mb-4")
+        
+        kpi_cards = build_sim_kpi_cards(data_with[0] if data_with else {})
+        chart1 = build_sim_chart_current(data_with)
+        chart2 = build_sim_chart_vib(data_with)
+        
+        return (banner, kpi_cards, chart1, chart2,
+                {"display": "none"}, {"display": "block"}, "")
+    
+    elif button_id == "btn-comparison":
+        # Generate Comparison Report
+        report = ComparisonEngine.generate_report(
+            sim_state["machine_id"],
+            sim_state["fault_id"],
+            [],  # without data (stored earlier)
+            []   # with data (stored earlier)
+        )
+        
+        comparison_ui = build_comparison_ui(report)
+        
+        return ("", [], empty_chart(), empty_chart(),
+                {"display": "none"}, {"display": "none"}, comparison_ui)
+    
+    return ("", [], empty_chart(), empty_chart(),
+            {"display": "none"}, {"display": "none"}, "")
+
+# ================================================================
+# 9) Helper Functions
+# ================================================================
+def empty_chart():
+    """Return empty Plotly chart."""
+    fig = go.Figure()
+    fig.update_layout(title="No data yet", template="plotly_dark")
+    return fig
+
+def build_sim_kpi_cards(data_point):
+    """Build KPI cards for simulation mode."""
+    if not data_point:
+        return []
+    
+    cards = [
+        dbc.Col(dbc.Card([
+            dbc.CardBody([
+                html.H6("State", className="card-title"),
+                html.H3(data_point.get("state", "N/A"))
+            ])
+        ]), width=2),
+        dbc.Col(dbc.Card([
+            dbc.CardBody([
+                html.H6("RPM", className="card-title"),
+                html.H3(f"{data_point.get('rpm', 0):.1f}")
+            ])
+        ]), width=2),
+        dbc.Col(dbc.Card([
+            dbc.CardBody([
+                html.H6("Current (A)", className="card-title"),
+                html.H3(f"{data_point.get('current_a', 0):.2f}")
+            ])
+        ]), width=2),
+        dbc.Col(dbc.Card([
+            dbc.CardBody([
+                html.H6("Vibration (g)", className="card-title"),
+                html.H3(f"{data_point.get('vibration_g', 0):.3f}")
+            ])
+        ]), width=2),
+        dbc.Col(dbc.Card([
+            dbc.CardBody([
+                html.H6("Temperature (°C)", className="card-title"),
+                html.H3(f"{data_point.get('temp_c', 0):.1f}")
+            ])
+        ]), width=2),
+        dbc.Col(dbc.Card([
+            dbc.CardBody([
+                html.H6("OEE (%)", className="card-title"),
+                html.H3(f"{data_point.get('oee_pct', 0):.1f}%")
+            ])
+        ]), width=2),
+    ]
+    return cards
+
+def build_sim_chart_current(data_points):
+    """Build current & voltage chart for simulation."""
+    if not data_points:
+        return empty_chart()
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=[d["t_s"] for d in data_points],
+        y=[d["current_a"] for d in data_points],
+        mode='lines',
+        name='Current (A)',
+        line=dict(color='blue')
+    ))
+    fig.add_trace(go.Scatter(
+        x=[d["t_s"] for d in data_points],
+        y=[d["voltage_v"] for d in data_points],
+        mode='lines',
+        name='Voltage (V)',
+        yaxis='y2',
+        line=dict(color='orange')
+    ))
+    fig.update_layout(
+        title="Current & Voltage Over Time",
+        xaxis=dict(title="Time (s)"),
+        yaxis=dict(title="Current (A)"),
+        yaxis2=dict(title="Voltage (V)", overlaying="y", side="right"),
+        template="plotly_dark"
+    )
+    return fig
+
+def build_sim_chart_vib(data_points):
+    """Build vibration & temperature chart for simulation."""
+    if not data_points:
+        return empty_chart()
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=[d["t_s"] for d in data_points],
+        y=[d["vibration_g"] for d in data_points],
+        mode='lines',
+        name='Vibration (g)',
+        line=dict(color='red')
+    ))
+    fig.add_trace(go.Scatter(
+        x=[d["t_s"] for d in data_points],
+        y=[d["temp_c"] for d in data_points],
+        mode='lines',
+        name='Temperature (°C)',
+        yaxis='y2',
+        line=dict(color='green')
+    ))
+    fig.update_layout(
+        title="Vibration & Temperature Over Time",
+        xaxis=dict(title="Time (s)"),
+        yaxis=dict(title="Vibration (g)"),
+        yaxis2=dict(title="Temperature (°C)", overlaying="y", side="right"),
+        template="plotly_dark"
+    )
+    return fig
+
+def build_comparison_ui(report):
+    """Build comparison report UI."""
+    if not report:
+        return ""
+    
+    financial = report["financial_comparison"]
+    technical = report["technical_comparison"]
+    
+    return dbc.Card([
+        dbc.CardBody([
+            html.H3("📊 Comparison Report", className="mb-4"),
+            
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+                            html.H4("❌ Without PRIME-Factory", 
+                                    className="text-danger"),
+                            html.Hr(),
+                            html.P(f"Detection Time: "
+                                   f"{financial['without_pf']['detection_time_min']:.1f} min"),
+                            html.P(f"Downtime: "
+                                   f"{financial['without_pf']['downtime_min']:.0f} min"),
+                            html.P(f"Repair Cost: "
+                                   f"{financial['without_pf']['repair_cost_egp']:,.0f} EGP"),
+                            html.P(f"Energy Waste: "
+                                   f"{financial['without_pf']['energy_waste_egp']:,.0f} EGP"),
+                            html.P(f"Scrap Cost: "
+                                   f"{financial['without_pf']['scrap_cost_egp']:,.0f} EGP"),
+                            html.Hr(),
+                            html.H4(f"Total Loss: "
+                                    f"{financial['without_pf']['total_loss_egp']:,.0f} EGP",
+                                    className="text-danger")
+                        ])
+                    ])
+                ], width=6),
+                
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+                            html.H4("✅ With PRIME-Factory", 
+                                    className="text-success"),
+                            html.Hr(),
+                            html.P(f"Detection Time: "
+                                   f"{financial['with_pf']['detection_time_min']:.2f} min"),
+                            html.P(f"Downtime: "
+                                   f"{financial['with_pf']['downtime_min']:.0f} min"),
+                            html.P(f"Repair Cost: "
+                                   f"{financial['with_pf']['repair_cost_egp']:,.0f} EGP"),
+                            html.P(f"Energy Waste: "
+                                   f"{financial['with_pf']['energy_waste_egp']:,.2f} EGP"),
+                            html.P(f"Scrap Cost: "
+                                   f"{financial['with_pf']['scrap_cost_egp']:,.2f} EGP"),
+                            html.Hr(),
+                            html.H4(f"Total Loss: "
+                                    f"{financial['with_pf']['total_loss_egp']:,.0f} EGP",
+                                    className="text-success")
+                        ])
+                    ])
+                ], width=6),
+            ], className="mb-4"),
+            
+            dbc.Card([
+                dbc.CardBody([
+                    html.H3("💰 Total Savings", 
+                            className="text-center text-success mb-3"),
+                    dbc.Row([
+                        dbc.Col([
+                            html.H2(f"{financial['total_savings_egp']:,.0f} EGP",
+                                    className="text-center")
+                        ], width=3),
+                        dbc.Col([
+                            html.H2(f"{financial['savings_pct']:.1f}%",
+                                    className="text-center")
+                        ], width=3),
+                        dbc.Col([
+                            html.H2(f"{technical['downtime_reduction_pct']:.0f}%",
+                                    className="text-center")
+                        ], width=3),
+                        dbc.Col([
+                            html.H2(f"{technical['units_saved']:,}",
+                                    className="text-center")
+                        ], width=3),
+                    ]),
+                    dbc.Row([
+                        dbc.Col(html.P("Total Savings", 
+                                       className="text-center")),
+                        dbc.Col(html.P("Cost Reduction", 
+                                       className="text-center")),
+                        dbc.Col(html.P("Downtime Reduction", 
+                                       className="text-center")),
+                        dbc.Col(html.P("Units Saved", 
+                                       className="text-center")),
+                    ], className="text-muted")
+                ])
+            ], color="success", className="mb-4"),
+            
+            dbc.Row([
+                dbc.Col([
+                    dbc.Button("🔄 Run Another Scenario", 
+                               id="btn-run-another", 
+                               color="primary",
+                               className="w-100")
+                ], width=6),
+                dbc.Col([
+                    dbc.Button("📥 Export Report", 
+                               id="btn-export-report", 
+                               color="info",
+                               className="w-100")
+                ], width=6),
+            ])
+        ])
+    ])
+
+# ================================================================
+# 10) Run App
+# ================================================================
+if __name__ == "__main__":
+    print("=" * 60)
+    print("PRIME-Factory Dashboard v1.0")
+    print("Opening http://127.0.0.1:8050")
+    print("=" * 60)
+    app.run_server(debug=True, host="0.0.0.0", port=8050)
+</pre>
+
+<!-- ============================================================ -->
+<!-- ======================== PART 4 ============================ -->
+<!-- ============================================================ -->
+
+<h2 id="sec18">18 — Deployment Guide</h2>
+
+<div class="box info">
+  <strong>الهدف:</strong> نشر المنصة على الإنترنت مجاناً بحيث يمكن للجنة الوصول إليها من أي جهاز.
+</div>
+
+<h3>18.1 Options Comparison</h3>
+
+<table>
+<tr><th>Platform</th><th>Pros</th><th>Cons</th><th>Recommendation</th></tr>
+<tr><td><strong>Vercel</strong></td><td>Free, fast, supports Python/Dash, free subdomain</td><td>Needs GitHub repo</td><td>✅ <strong>Best</strong></td></tr>
+<tr><td><strong>Render</strong></td><td>Supports Python apps, free</td><td>Slower than Vercel, needs credit card</td><td>Good alternative</td></tr>
+<tr><td><strong>Heroku</strong></td><td>Popular, supports Python</td><td>No longer free (since 2022)</td><td>❌ Expensive</td></tr>
+</table>
+
+<h3>18.2 Vercel Deployment Steps</h3>
+
+<ol>
+  <li><strong>Prepare GitHub Repo:</strong>
+    <pre>
+# In VS Code Terminal
+git add .
+git commit -m "Final: Complete PRIME-Factory Dashboard v1.0"
+git push origin main
+    </pre>
+  </li>
+  
+  <li><strong>Create Vercel Account:</strong>
+    <ul>
+      <li>Open <code>vercel.com</code></li>
+      <li>Click "Sign Up" → Choose "Continue with GitHub"</li>
+      <li>Allow Vercel to access your repo</li>
+    </ul>
+  </li>
+  
+  <li><strong>Import Project:</strong>
+    <ul>
+      <li>Click "New Project"</li>
+      <li>Select repo: <code>prime-factory</code></li>
+      <li>Vercel will auto-detect Python/Dash</li>
+    </ul>
+  </li>
+  
+  <li><strong>Add <code>vercel.json</code> (in project root):</strong>
+    <pre>
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ]
+}
+    </pre>
+  </li>
+  
+  <li><strong>Modify <code>app.py</code> for production:</strong>
+    <pre>
+# At the end of app.py, replace:
+# app.run_server(debug=True, host="0.0.0.0", port=8050)
+
+# With:
+if __name__ == "__main__":
+    app.run_server(debug=False, host="0.0.0.0", port=8050)
+    </pre>
+  </li>
+  
+  <li><strong>Click "Deploy":</strong>
+    <ul>
+      <li>Vercel will start building (~2-3 minutes)</li>
+      <li>After success, you'll get a link like: <code>https://prime-factory-xxx.vercel.app</code></li>
+    </ul>
+  </li>
+  
+  <li><strong>Test the link:</strong>
+    <ul>
+      <li>Open the link in a new browser</li>
+      <li>Verify Landing Page appears</li>
+      <li>Try Real Mode (if Arduino connected) and Simulation Mode</li>
+    </ul>
+  </li>
+</ol>
+
+<div class="box warn">
+  <strong>⚠ Important Note:</strong>
+  <ul>
+    <li>Real Mode (Serial Port) <strong>will NOT work</strong> on Vercel/Render because they don't access local USB.</li>
+    <li>Real Mode works only on <code>localhost:8050</code> (your personal laptop).</li>
+    <li>Simulation Mode works on all platforms (Vercel, Render, localhost).</li>
+    <li>For the committee: Use Simulation Mode on Vercel + Real Mode on your local laptop.</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="sec19">19 — Final Testing Checklist</h2>
+
+<div class="box danger">
+  <strong>⚠ Do not deliver the project until all items below are achieved.</strong>
+  Any failed item = project not ready for presentation.
+</div>
+
+<h3>19.1 Real Mode Testing (Arduino)</h3>
+
+<table>
+<tr><th>#</th><th>Test</th><th>Procedure</th><th>Success Criteria</th><th>Pass/Fail</th></tr>
+<tr><td>1</td><td>Serial Connection</td><td>Connect Arduino → Run app.py → Select Real Mode</td><td>🟢 Connected within 3s</td><td>☐</td></tr>
+<tr><td>2</td><td>KPI Cards Update</td><td>Run Motor → Watch KPIs</td><td>Each KPI updates every 1s</td><td>☐</td></tr>
+<tr><td>3</td><td>Charts (Last 60s)</td><td>Run Motor 60s → Watch charts</td><td>4 Charts work smoothly</td><td>☐</td></tr>
+<tr><td>4</td><td>Boot Safety</td><td>Disconnect Adapter → Reconnect</td><td>Motor does not run momentarily</td><td>☐</td></tr>
+<tr><td>5</td><td>E-Stop (Jam)</td><td>Brake Motor with wooden handle</td><td>E-Stop ≤ 100ms + LED Red</td><td>☐</td></tr>
+<tr><td>6</td><td>TCRT Counting</td><td>Pass paper 8 times in front of TCRT</td><td>unitsTotal increases by 1</td><td>☐</td></tr>
+<tr><td>7</td><td>Speed Calculation</td><td>Run Motor → Watch RPM</td><td>RPM = 220 ± 10%</td><td>☐</td></tr>
+<tr><td>8</td><td>DS18B20</td><td>Touch sensor with finger</td><td>T rises within 2s</td><td>☐</td></tr>
+<tr><td>9</td><td>Alert Panel</td><td>Trigger FAULT manually</td><td>Alert appears immediately</td><td>☐</td></tr>
+<tr><td>10</td><td>Stability (5 min)</td><td>Run 5 minutes continuously</td><td>No crash, no lag</td><td>☐</td></tr>
+</table>
+
+<h3>19.2 Simulation Mode Testing</h3>
+
+<table>
+<tr><th>#</th><th>Test</th><th>Procedure</th><th>Success Criteria</th><th>Pass/Fail</th></tr>
+<tr><td>1</td><td>Landing Page</td><td>Open app.py → Select Simulation Mode</td><td>3 Dropdowns + Run Button</td><td>☐</td></tr>
+<tr><td>2</td><td>Industry Selection</td><td>Select Fertilizer → Equipment updates</td><td>3 machines appear</td><td>☐</td></tr>
+<tr><td>3</td><td>Equipment Selection</td><td>Select Conveyor → Fault updates</td><td>2+ faults appear</td><td>☐</td></tr>
+<tr><td>4</td><td>Phase A (Without PF)</td><td>Click Run → Watch 60s</td><td>Fault progresses → Failure</td><td>☐</td></tr>
+<tr><td>5</td><td>Phase B (With PF)</td><td>Click Next → Watch 60s</td><td>Early Detection → Maintenance</td><td>☐</td></tr>
+<tr><td>6</td><td>Comparison Report</td><td>Click Generate → Watch report</td><td>Total Savings + Breakdown</td><td>☐</td></tr>
+<tr><td>7</td><td>Financial Accuracy</td><td>Compare numbers with MACHINE_PROFILES</td><td>100% match</td><td>☐</td></tr>
+<tr><td>8</td><td>All 9 Scenarios</td><td>Try each scenario one by one</td><td>All work without error</td><td>☐</td></tr>
+<tr><td>9</td><td>Charts (Simul)</td><td>Watch charts in Phase A/B</td><td>4 Charts + Thresholds</td><td>☐</td></tr>
+<tr><td>10</td><td>Run Another Scenario</td><td>Click Reset → Select new scenario</td><td>Works without restart</td><td>☐</td></tr>
+</table>
+
+<h3>19.3 Integration Testing</h3>
+
+<table>
+<tr><th>#</th><th>Test</th><th>Procedure</th><th>Success Criteria</th><th>Pass/Fail</th></tr>
+<tr><td>1</td><td>Mode Switching</td><td>Switch between Real ↔ Simulation</td><td>No crash, no data leak</td><td>☐</td></tr>
+<tr><td>2</td><td>Serial Disconnect</td><td>Disconnect Arduino during Real Mode</td><td>🔴 Disconnected + Graceful</td><td>☐</td></tr>
+<tr><td>3</td><td>Serial Reconnect</td><td>Reconnect Arduino</td><td>🟢 Connected automatically</td><td>☐</td></tr>
+<tr><td>4</td><td>JSON Files</td><td>Open simulation_data/scenarios/</td><td>9 JSON files present</td><td>☐</td></tr>
+<tr><td>5</td><td>MACHINE_PROFILES</td><td>Open backend/machine_profiles.py</td><td>6 machines + financial constants</td><td>☐</td></tr>
+<tr><td>6</td><td>Financial Calculator</td><td>Run calculate_savings()</td><td>Logical numbers (thousands of EGP)</td><td>☐</td></tr>
+<tr><td>7</td><td>Sequential Player</td><td>Run Phase A → B → Report</td><td>Smooth, no freezing</td><td>☐</td></tr>
+<tr><td>8</td><td>Comparison Engine</td><td>Compare Without vs With</td><td>Savings ≥ 50% reduction</td><td>☐</td></tr>
+<tr><td>9</td><td>Dark Theme</td><td>Open Dashboard</td><td>plotly_dark + DARKLY Bootstrap</td><td>☐</td></tr>
+<tr><td>10</td><td>Mobile Responsive</td><td>Open on mobile</td><td>Layout adapts (Bootstrap)</td><td>☐</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="sec20">20 — Demo Scenarios (Presentation)</h2>
+
+<div class="box ok">
+  <strong>This section is the "script" you will perform in front of the committee.</strong>
+  5 scenarios, each 2–3 minutes, total 12–15 minutes.
+  <strong>Do not read from paper — explain what your hands are doing.</strong>
+</div>
+
+<h3>20.1 Opening Scenario (2 minutes)</h3>
+
+<table>
+<tr><th>Time</th><th>Action</th><th>Speech</th><th>Committee Sees</th></tr>
+<tr>
+  <td>0:00–0:30</td>
+  <td>Open Dashboard on large screen</td>
+  <td>"PRIME-Factory is an Industry 4.0 platform for rotating machinery condition monitoring."</td>
+  <td>Landing Page (Real + Simulation buttons)</td>
+</tr>
+<tr>
+  <td>0:30–1:00</td>
+  <td>Click Real Mode</td>
+  <td>"First, let's see the physical prototype — Arduino + GA25-370 motor + 4 sensors."</td>
+  <td>Real Mode Dashboard + KPI Cards</td>
+</tr>
+<tr>
+  <td>1:00–1:30</td>
+  <td>Run Motor (Button)</td>
+  <td>"The motor runs at 220 RPM. We monitor current, voltage, vibration, temperature."</td>
+  <td>Motor runs + Charts update</td>
+</tr>
+<tr>
+  <td>1:30–2:00</td>
+  <td>Point to disc</td>
+  <td>"This 3D-printed disc has 3 functions: counting (TCRT), unbalance injection (M3 holes), friction braking (felt pad)."</td>
+  <td>Close-up on disc</td>
+</tr>
+</table>
+
+<h3>20.2 Scenario 1: Real Mode — Fault Detection (3 minutes)</h3>
+
+<table>
+<tr><th>Time</th><th>Action</th><th>Speech</th><th>Committee Sees</th></tr>
+<tr>
+  <td>0:00–0:30</td>
+  <td>Run Motor (PWM=255)</td>
+  <td>"Normal operation: RPM=220, Current=0.05A, Vibration=0.05g."</td>
+  <td>Green KPIs + Stable Charts</td>
+</tr>
+<tr>
+  <td>0:30–1:00</td>
+  <td>Add one screw (U1)</td>
+  <td>"Injecting unbalance — 3g mass at r=38mm. Vibration rises 60%."</td>
+  <td>VIB = 0.08g (Yellow)</td>
+</tr>
+<tr>
+  <td>1:00–1:30</td>
+  <td>Add 3 screws (U3)</td>
+  <td>"Severe unbalance — 12g total. Vibration = 3.6× baseline. Rule-Based alert triggers."</td>
+  <td>VIB = 0.18g (Red) + Alert Panel</td>
+</tr>
+<tr>
+  <td>1:30–2:00</td>
+  <td>Brake with wooden handle (Jam)</td>
+  <td>"Mechanical jam — current spikes to 1.4A. E-Stop in ≤100ms."</td>
+  <td>I=1.42A (Red) + Motor stops + LED Red</td>
+</tr>
+<tr>
+  <td>2:00–2:30</td>
+  <td>Press Button (Reset)</td>
+  <td>"Reset — system returns to IDLE. Defense in Depth: 3 layers (Hardware, Firmware, AI)."</td>
+  <td>LED Yellow + IDLE on Dashboard</td>
+</tr>
+<tr>
+  <td>2:30–3:00</td>
+  <td>Point to UART Protocol</td>
+  <td>"8-field protocol: STATE,RPM,UNITS,I,V,T,VIB,SET. Compatible with ESP32 MQTT later."</td>
+  <td>Serial Monitor shows protocol</td>
+</tr>
+</table>
+
+<h3>20.3 Scenario 2: Simulation Mode — Fertilizer Industry (4 minutes)</h3>
+
+<table>
+<tr><th>Time</th><th>Action</th><th>Speech</th><th>Committee Sees</th></tr>
+<tr>
+  <td>0:00–0:30</td>
+  <td>Click Simulation Mode</td>
+  <td>"Now, let's demonstrate PRIME-Factory value on real industrial scenarios."</td>
+  <td>3 Dropdowns (Industry, Equipment, Fault)</td>
+</tr>
+<tr>
+  <td>0:30–1:00</td>
+  <td>Select: Fertilizer → Granulator Motor → Jam</td>
+  <td>"Fertilizer industry — granulator drum motor. Injecting mechanical jam fault."</td>
+  <td>Dropdowns updated</td>
+</tr>
+<tr>
+  <td>1:00–1:30</td>
+  <td>Click Run Scenario</td>
+  <td>"Phase A: Without PRIME-Factory — fault progresses to catastrophic failure."</td>
+  <td>⚠️ MONITORING: LEGACY SYSTEM banner</td>
+</tr>
+<tr>
+  <td>1:30–2:30</td>
+  <td>Watch Phase A (60s)</td>
+  <td>"Current spikes to 180A, vibration increases 8×, motor stalls after 45 minutes (simulated in 60s). Total loss: 38,000 EGP."</td>
+  <td>Charts evolve + KPIs degrade</td>
+</tr>
+<tr>
+  <td>2:30–3:00</td>
+  <td>Click Next (Phase B)</td>
+  <td>"Phase B: With PRIME-Factory — early detection at 15 seconds, planned maintenance."</td>
+  <td>✅ MONITORING: PRIME-FACTORY ACTIVE banner</td>
+</tr>
+<tr>
+  <td>3:00–3:30</td>
+  <td>Watch Phase B (60s)</td>
+  <td>"Current detected early, alert triggered, maintenance scheduled. Total loss: 17,300 EGP."</td>
+  <td>Charts stable + Alert Panel</td>
+</tr>
+<tr>
+  <td>3:30–4:00</td>
+  <td>Click Generate Report</td>
+  <td>"Comparison: 54.5% cost reduction, 97% downtime reduction, 15,000 units saved."</td>
+  <td>Comparison Report + Total Savings</td>
+</tr>
+</table>
+
+<h3>20.4 Scenario 3: Simulation Mode — Packaging Industry (3 minutes)</h3>
+
+<table>
+<tr><th>Time</th><th>Action</th><th>Speech</th><th>Committee Sees</th></tr>
+<tr>
+  <td>0:00–0:30</td>
+  <td>Click Run Another Scenario</td>
+  <td>"Second industry: Packaging — filling machine motor."</td>
+  <td>Landing Page → Simulation Mode</td>
+</tr>
+<tr>
+  <td>0:30–1:00</td>
+  <td>Select: Packaging → Filling Motor → Speed Droop</td>
+  <td>"Speed droop fault — motor slows down due to belt wear."</td>
+  <td>Dropdowns updated</td>
+</tr>
+<tr>
+  <td>1:00–2:00</td>
+  <td>Run Phase A + B</td>
+  <td>"Without PRIME-Factory: 6 hours downtime, 12,000 EGP loss. With: 1 hour, 2,500 EGP."</td>
+  <td>Charts + KPIs</td>
+</tr>
+<tr>
+  <td>2:00–3:00</td>
+  <td>Point to Comparison Report</td>
+  <td>"Savings: 9,500 EGP (79% reduction). This is the value of predictive maintenance."</td>
+  <td>Report + Savings</td>
+</tr>
+</table>
+
+<h3>20.5 Scenario 4: Financial Impact (2 minutes)</h3>
+
+<table>
+<tr><th>Time</th><th>Action</th><th>Speech</th><th>Committee Sees</th></tr>
+<tr>
+  <td>0:00–0:30</td>
+  <td>Open MACHINE_PROFILES</td>
+  <td>"Each machine has specific financial constants — not random numbers."</td>
+  <td>Code: downtime_cost, repair_cost, etc.</td>
+</tr>
+<tr>
+  <td>0:30–1:00</td>
+  <td>Point to Financial Calculator</td>
+  <td>"Dynamic calculation: Loss = downtime × cost + repair + scrap + energy waste."</td>
+  <td>Code: calculate_savings()</td>
+</tr>
+<tr>
+  <td>1:00–1:30</td>
+  <td>Compare 3 scenarios</td>
+  <td>"Fertilizer Granulator: 20,700 EGP saved. Packaging Filling: 9,500 EGP saved. Conveyor: 12,000 EGP saved."</td>
+  <td>3 Reports side by side</td>
+</tr>
+<tr>
+  <td>1:30–2:00</td>
+  <td>Conclude</td>
+  <td>"Total potential savings: 42,200 EGP across 3 machines. This is Industry 4.0 ROI."</td>
+  <td>Full Dashboard</td>
+</tr>
+</table>
+
+<h3>20.6 Scenario 5: Q&A Preparation (1 minute)</h3>
+
+<table>
+<tr><th>Expected Question</th><th>Ready Answer</th></tr>
+<tr>
+  <td>"Why 9 faults specifically?"</td>
+  <td>"Each fault serves a different layer: MES, EMS, PdM, AI, Rule-Based. 9 = minimum to cover all layers across 2 industries."</td>
+</tr>
+<tr>
+  <td>"How do you differentiate Unbalance vs Loosening?"</td>
+  <td>"Unbalance: spectral peak at 3.67Hz (RPM/60). Loosening: broadband RMS increase without specific peak. FFT differentiates them."</td>
+</tr>
+<tr>
+  <td>"Why E-Stop at 0.9A not 1.2A (Stall)?"</td>
+  <td>"0.9A = 75% of Stall — 25% safety margin. Waiting for 1.2A risks gearbox damage."</td>
+</tr>
+<tr>
+  <td>"What if AI fails completely?"</td>
+  <td>"Rule-Based is sufficient for safety. Defense in Depth — each layer works independently."</td>
+</tr>
+<tr>
+  <td>"How do you ensure TCRT counting accuracy?"</td>
+  <td>"Interrupt on D2 (INT0) — pulse registered instantly regardless of loop state. 100% accuracy."</td>
+</tr>
+<tr>
+  <td>"What was the hardest challenge?"</td>
+  <td>"ACS712 calibration — was wrong by 21.6×. Discovered via Audit, corrected with real Stall Test."</td>
+</tr>
+<tr>
+  <td>"Why 3D-printed disc not metal frame?"</td>
+  <td>"PETG withstands 60°C, costs 20 EGP, replaceable. Metal = 200 EGP + manufacturing time."</td>
+</tr>
+<tr>
+  <td>"How do you measure E-Stop time without oscilloscope?"</td>
+  <td>"60fps video — each frame = 16.7ms. 6 frames = 100ms. Sufficient accuracy to prove KPI."</td>
+</tr>
+</table>
+
+<div class="box warn">
+  <strong>Supervisor's Advice:</strong>
+  <ul>
+    <li>Do not read from paper — explain what your hands are doing.</li>
+    <li>Each scenario ≤ 3 minutes — committee gets bored quickly.</li>
+    <li>Backup video (3–5 minutes) works on any device — if station fails.</li>
+    <li>USB has all codes + DB + video — if laptop fails.</li>
+    <li>QR Code for Vercel link — committee can try on their mobile.</li>
+  </ul>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="sec21">21 — Expected Q&A from Committee</h2>
+
+<h3>21.1 Technical Questions</h3>
+
+<table>
+<tr><th>#</th><th>Question</th><th>Answer</th></tr>
+<tr>
+  <td>1</td>
+  <td>"Why Dash/Plotly not React/Next.js?"</td>
+  <td>"Dash is Python-native, integrates seamlessly with our backend. React would require separate frontend/backend. Dash = faster development, same functionality."</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>"Why Serial Port not MQTT for Real Mode?"</td>
+  <td>"Arduino doesn't have Wi-Fi. ESP32 (Phase 3) will use MQTT. Serial is intermediate step — proven, reliable, low-latency."</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>"Why 60s window for charts not 24h?"</td>
+  <td>"Real-time monitoring focus. 60s = last minute, shows immediate trends. Historical data stored in SQLite for later analysis."</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>"Why 3 machines per industry not 10?"</td>
+  <td>"Depth over breadth. 3 machines × 2-3 faults each = 9 scenarios. Each scenario is realistic, tested, documented. 10 machines would be shallow."</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td>"How do you handle Serial disconnection?"</td>
+  <td>"Graceful fallback: Dashboard shows 🔴 Disconnected, keeps last known values, auto-reconnects when Arduino reconnected. No crash."</td>
+</tr>
+</table>
+
+<h3>21.2 Business Questions</h3>
+
+<table>
+<tr><th>#</th><th>Question</th><th>Answer</th></tr>
+<tr>
+  <td>1</td>
+  <td>"What's the ROI for a real factory?"</td>
+  <td>"Our simulation shows 54-79% cost reduction. For a real fertilizer plant (50M EGP/year revenue), even 1% improvement = 500,000 EGP/year savings. ROI < 6 months."</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>"Why Egyptian industries (Fertilizer, Packaging)?"</td>
+  <td>"Egypt is top-10 global fertilizer producer. Packaging is growing 15%/year. Local relevance + global applicability."</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>"Can this scale to 100 machines?"</td>
+  <td>"Yes. Architecture is modular: each machine = one ESP32 + one MQTT topic. Dashboard aggregates all. Cloud deployment (AWS/Azure) handles scale."</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>"What's the competitive advantage?"</td>
+  <td>"Dual-mode (Real + Simulation), dynamic financial modeling, 9 fault types, 3-layer detection. Most academic projects stop at 'motor spins'. We show business value."</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td>"How much would this cost in industry?"</td>
+  <td>"Hardware: ~5,000 EGP/machine (ESP32 + sensors). Software: open-source (Dash, Plotly, SQLite). Total: < 10,000 EGP/machine vs. 100,000+ EGP for commercial SCADA."</td>
+</tr>
+</table>
+
+<h3>21.3 Academic Questions</h3>
+
+<table>
+<tr><th>#</th><th>Question</th><th>Answer</th></tr>
+<tr>
+  <td>1</td>
+  <td>"What's your contribution vs. existing work?"</td>
+  <td>"Existing: motor control + basic monitoring. Ours: predictive maintenance + financial impact + dual-mode + 9 fault types + Industry 4.0 layers."</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>"How did you validate your results?"</td>
+  <td>"Physical testing (Stall Test, E-Stop video, baseline vibration). Simulation validation (9 scenarios × 3 layers). Financial validation (real industry constants)."</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>"What are the limitations?"</td>
+  <td>"Scale: tested on 1 machine, not 100. AI: rule-based works, ML needs more training data. Environment: lab conditions, not factory floor (dust, humidity)."</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>"What's the future work?"</td>
+  <td>"Cloud deployment (AWS IoT). Mobile app (Flutter). Digital Twin (Siemens). Multi-machine coordination. Advanced ML (LSTM for RUL prediction)."</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td>"How does this relate to Industry 4.0?"</td>
+  <td>"4 layers: Control (Arduino), Communication (MQTT/Serial), Analytics (Dash), AI (Isolation Forest). This is Industry 4.0 in miniature."</td>
+</tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="sec22">22 — Final Sign-Off</h2>
+
+<div class="box rule">
+  <strong>By signing below, we certify that:</strong>
+  <ol>
+    <li>All success criteria (Section 19) have been achieved.</li>
+    <li>All tests (Real, Simulation, Integration) have passed.</li>
+    <li>The platform is ready for committee presentation.</li>
+    <li>Documentation is complete (GitHub + Google Drive + Vercel).</li>
+    <li>The team is trained on the 5 Demo Scenarios.</li>
+  </ol>
+</div>
+
+<table>
+<tr><th>Role</th><th>Name</th><th>Signature</th><th>Date</th></tr>
+<tr><td>Project Lead</td><td>________________</td><td>________________</td><td>___/___/2026</td></tr>
+<tr><td>Power Engineer</td><td>________________</td><td>________________</td><td>___/___/2026</td></tr>
+<tr><td>Instrumentation</td><td>________________</td><td>________________</td><td>___/___/2026</td></tr>
+<tr><td>Embedded Dev</td><td>________________</td><td>________________</td><td>___/___/2026</td></tr>
+<tr><td>Mechanical Eng</td><td>________________</td><td>________________</td><td>___/___/2026</td></tr>
+<tr><td>Software Lead</td><td>________________</td><td>________________</td><td>___/___/2026</td></tr>
+<tr><td>Documentation</td><td>________________</td><td>________________</td><td>___/___/2026</td></tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="sec23">23 — End of Constitution — What Was Achieved</h2>
+
+<div class="box ok">
+  <strong>The complete constitution (v1.0) covered:</strong>
+  <ul>
+    <li>✅ Part 1: Executive Summary + Architecture + Industries + Financial Model + UI/UX</li>
+    <li>✅ Part 2: Backend Engine + Data Models + Serial Reader + Simulation Engine + Calculators</li>
+    <li>✅ Part 3: JSON Scenarios + Dashboard Code (app.py) + Integration</li>
+    <li>✅ Part 4: Deployment + Testing + Demo + Q&A + Sign-Off</li>
+  </ul>
+</div>
+
+<div class="box warn">
+  <strong>Next Steps:</strong>
+  <ol>
+    <li>Print this constitution (4 Parts) — one copy for each team member.</li>
+    <li>Purchase components (Section 5.2 in Hardware Constitution) before Thursday.</li>
+    <li>Print 3D disc (STL) — deliver to shop Wednesday.</li>
+    <li>Upload Firmware v3 to GitHub — Tag: <code>v6.1</code>.</li>
+    <li>Review Shopping Checklist (Hardware Constitution Section 22.2) — ensure all items purchased.</li>
+    <li>Saturday 09:00 — Start with Hardware Constitution Section 23 (Session Plan).</li>
+    <li>After hardware session: Run Software Constitution tests (Section 19).</li>
+    <li>Deploy to Vercel (Section 18).</li>
+    <li>Practice the 5 Demo Scenarios (Section 20).</li>
+    <li>Prepare for Q&A (Section 21).</li>
+    <li>Sign final sign-off (Section 22).</li>
+  </ol>
+</div>
+
+<div class="rule box">
+  <strong>Final Message from the Supervisor:</strong><br><br>
+  The difference between a project that succeeds and a project that fails is not intelligence, but discipline.<br>
+  The difference between a student who copies and an engineer who thinks is their understanding of what they do.<br><br>
+  You now have a complete constitution. Every decision is documented. Every number has a reason. Every feature has a layer it serves.<br>
+  Do not deviate from this constitution. Do not guess. Do not postpone.<br><br>
+  Good luck. See you Saturday at 09:00.
+</div>
+
+</div>
+
+<footer>
+  PRIME-Factory — Software Constitution v1.0 (Complete)<br>
+  24 November 2026 | Mansoura University — Power Engineering Department<br>
+  <strong>"The difference between a project that succeeds and a project that fails is who documents their decisions before executing them"</strong>
+</footer>
+
+</div>
+</body>
+</html>
