@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang='ar' dir='rtl'>
+<head>
+<meta charset='utf-8'>
+<title>PRIME-Factory - المرجع التقني وسجل التعديلات والأخطاء</title>
+<style>
+@page { size:A4; margin:16mm 14mm; }
+* { box-sizing:border-box; }
+body { font-family:'Segoe UI',Tahoma,Arial,sans-serif; font-size:10.2pt; color:#0f172a; line-height:1.7; margin:0; }
+h1,h2,h3,h4 { color:#0f172a; margin:0 0 10px; }
+h1 { font-size:22pt; border-bottom:4px solid #0ea5e9; padding-bottom:12px; }
+h2 { font-size:15pt; margin-top:24px; border-right:5px solid #0ea5e9; padding-right:10px; }
+h3 { font-size:12pt; margin-top:18px; color:#075985; }
+h4 { font-size:10.8pt; margin-top:14px; }
+p { margin:6px 0; }
+ul,ol { margin:6px 0 6px 22px; padding:0; }
+li { margin:3px 0; }
+.cover { text-align:center; padding:34px 12px 26px; border:2px solid #e2e8f0; border-radius:14px; background:linear-gradient(135deg,#f8fafc,#e0f2fe); }
+.cover .sub { color:#475569; font-size:12pt; }
+.cover .meta { margin-top:18px; font-size:9.5pt; color:#334155; }
+.badge { display:inline-block; padding:3px 10px; border-radius:999px; background:#0f172a; color:#fff; font-size:8.5pt; margin:2px; }
+.ok { border-right:4px solid #16a34a; background:#f0fdf4; padding:8px 12px; margin:10px 0; border-radius:6px; }
+.warn { border-right:4px solid #f59e0b; background:#fffbeb; padding:8px 12px; margin:10px 0; border-radius:6px; }
+.danger { border-right:4px solid #dc2626; background:#fef2f2; padding:8px 12px; margin:10px 0; border-radius:6px; }
+.info { border-right:4px solid #0ea5e9; background:#f0f9ff; padding:8px 12px; margin:10px 0; border-radius:6px; }
+table { width:100%; border-collapse:collapse; margin:10px 0 16px; font-size:9pt; direction:rtl; }
+th,td { border:1px solid #cbd5e1; padding:6px 7px; vertical-align:top; }
+th { background:#0f172a; color:#fff; text-align:right; }
+tr:nth-child(even) td { background:#f8fafc; }
+.ltr { direction:ltr; text-align:left; font-family:Consolas,'Courier New',monospace; font-size:8.7pt; }
+code { font-family:Consolas,'Courier New',monospace; direction:ltr; unicode-bidi:isolate; background:#f1f5f9; padding:1px 4px; border-radius:4px; font-size:8.8pt; }
+pre { direction:ltr; text-align:left; white-space:pre-wrap; background:#0f172a; color:#e2e8f0; padding:10px 12px; border-radius:8px; font-family:Consolas,'Courier New',monospace; font-size:8.4pt; line-height:1.5; margin:8px 0 14px; }
+.toc a { color:#075985; text-decoration:none; }
+.page-break { page-break-before:always; }
+.avoid { page-break-inside:avoid; }
+.small { font-size:8.8pt; color:#475569; }
+.center { text-align:center; }
+</style>
+</head>
+<body>
+
+<div class='cover'>
+  <div class='badge'>SPECIFICATION</div>
+  <div class='badge'>TROUBLESHOOTING LOG</div>
+  <div class='badge'>PHASE 1</div>
+  <h1>PRIME-Factory</h1>
+  <div class='sub'>المرجع التقني الكامل وسجل التعديلات والمشاكل التي تم حلها</div>
+  <div class='meta'>
+    <p>المسار: Arduino Nano → ESP32-S3 → Mosquitto → SQLite → Dash</p>
+    <p>تاريخ التوثيق: 2026-11-26&nbsp;&nbsp;|&nbsp;&nbsp;الإصدار: 1.0</p>
+    <p>Mohamed Khedr&nbsp;&nbsp;|&nbsp;&nbsp;مشروع تخرج - تحكم صناعي ومراقبة حالة</p>
+  </div>
+</div>
+
+<h2>جدول المحتويات</h2>
+<div class='toc'>
+  <ol>
+    <li>الملخص التنفيذي وخريطة المشروع</li>
+    <li>البرامج والأدوات المستخدمة ودور كل منها</li>
+    <li>المكونات المادية والتوصيلات</li>
+    <li>البروتوكولات والموضوعات والمخططات</li>
+    <li>هيكل الملفات وقاعدة البيانات</li>
+    <li>سجل التعديلات التفصيلي</li>
+    <li>سجل المشاكل والأخطاء وحلولها</li>
+    <li>المعلومات المهمة والتحذيرات</li>
+    <li>الأوامر والفحوصات النهائية</li>
+    <li>المراجع والروابط</li>
+  </ol>
+</div>
+
+<div class='page-break'></div>
+
+<h2>1) الملخص التنفيذي وخريطة المشروع</h2>
+<p>هذا الملف مرجع شامل لمرحلة الأولى (Phase 1) من منصة PRIME-Factory. الهدف كان بناء مسار حيّ لنقل قراءات الموتور من Arduino Nano إلى لوحة Dash تعمل محلياً، مع إمكانية التحكم عن بعد، وتخزين كل القراءات في SQLite لتجهيز خطوة تدريب نموذج الذكاء الاصطناعي لاحقاً.</p>
+
+<h3>1.1 مسار البيانات (Telemetry)</h3>
+<pre>Arduino Nano  --UART 9600-->  ESP32-S3  --MQTT QoS 1-->  Mosquitto  --paho-mqtt-->  Dash / SQLite</pre>
+<p>يرسل Arduino سطر قياس كل 1 ثانية. يستقبل ESP السطر على GPIO44، يحوله إلى JSON، وينشره على <code>prime-factory/data</code>. المشترك في Dash يستقبل الرسالة، يكتبها في <code>data/factory.db</code>، ويحدّث بطاقات العرض فوراً.</p>
+
+<h3>1.2 مسار التحكم (Control)</h3>
+<pre>Dash (/real)  --MQTT retained-->  ESP32-S3  --Serial2 GPIO17-->  Arduino RX Pin 0  --PWM-->  Motor</pre>
+<p>وضع REMOTE يرسل <code>MODE:R,SPD:0..100</code>. يعيد Arduino إرسال الوضع الحالي فيTelemetry كإقرار بالتنفيذ (<code>control_mode</code> / <code>control_speed_pct</code>).</p>
+
+<h3>1.3 حالة الاتصال</h3>
+<div class='info'>شارة ONLINE/OFFLINE تتبع اتصال MQTT فقط ( retained + LWT ). أما عمر آخر قراءة فيعرض في نص مستقل بجانب الشارة. لذلك تبقى الشارة خضراء مع سلك Arduino مفصول، بينما تظهر رسالة <code>Last reading Xs ago</code>.</div>
+
+<h2>2) البرامج والأدوات المستخدمة ودور كل منها</h2>
+<table>
+  <tr><th>البرنامج / المكتبة</th><th>الإصدار</th><th>الدور في المشروع</th></tr>
+  <tr><td>Python</td><td>3.14.7 (اختُبر أيضاً 3.15.2)</td><td>لغة الخادم والمنطق الخلفي.</td></tr>
+  <tr><td>Dash</td><td>4.5.1</td><td>بناء صفحات الويب والتفاعل بدون إعادة تحميل كاملة.</td></tr>
+  <tr><td>dash-bootstrap-components</td><td>1.6.0</td><td>البطاقات، الأزرار، التبويبات، النماذج.</td></tr>
+  <tr><td>Plotly</td><td>5.24.1</td><td>الرسوم الحية، الرسم البياني للطاقة، التنسيق الموحّد.</td></tr>
+  <tr><td>pandas / numpy</td><td>&gt;=3.0.0 / &gt;=2.0.0</td><td>موجودة في المتطلبات؛ لا تُستخدم مباشرة في app.py.</td></tr>
+  <tr><td>paho-mqtt</td><td>&gt;=2.1.0</td><td>عميل MQTT داخل Dash للاشتراك والنشر.</td></tr>
+  <tr><td>SQLite3</td><td>stdlib</td><td>تخزين القراءات وسجل الطاقة وإعدادات النظام.</td></tr>
+  <tr><td>pyserial</td><td>3.5</td><td>مكتبة Serial قديمة اختيارية؛ لم تعد مسار القراءة الحي.</td></tr>
+  <tr><td>Mosquitto</td><td>Windows service</td><td>الوسيط المحلي على المنفذ 1883، ي listening على 0.0.0.0.</td></tr>
+  <tr><td>Arduino CLI / Arduino IDE</td><td> arduino-cli.exe</td><td>تجميع ورفع سكتشات Arduino وESP.</td></tr>
+  <tr><td>espMqttClient</td><td>1.7.3</td><td>مكتبة MQTT على ESP32-S3.</td></tr>
+  <tr><td>Async TCP</td><td>3.6.1</td><td>طبقة TCP غير حاجزة التي يحتاجها espMqttClient.</td></tr>
+  <tr><td>cloudflared</td><td>2026.11.2</td><td>نفق HTTPS عام سريع لعرض المنصة للدكتور والزملاء.</td></tr>
+  <tr><td>Git + GitHub CLI</td><td>Copilot build</td><td>رفع الكود فقط إلى GitHub.</td></tr>
+  <tr><td>PowerShell / Batch</td><td>مدمج في Windows</td><td>سكربتات التشغيل والنفق.</td></tr>
+  <tr><td>Microsoft Edge</td><td>مدمج</td><td>اختبار الواجهة وتوليد هذا PDF من HTML.</td></tr>
+</table>
+
+<div class='warn'>الإصدارات القديمة <code>pandas==2.2.3</code> و <code>numpy==1.26.4</code> لا تتثبت على Python 3.14 لأنها بلا عجلات cp314 وتحتاج Visual Studio للبناء من المصدر. لذلك استخدمنا نطاقات <code>&gt;=</code> في requirements.txt.</div>
+
+<h2>3) المكونات المادية والتوصيلات</h2>
+<table>
+  <tr><th>المكوّن</th><th>الإعداد / الدور</th></tr>
+  <tr><td>Arduino Nano</td><td>يقرأ الجهد والتيار والاهتزاز، يتحكم في PWM، يرسل Telemetry على Serial.</td></tr>
+  <tr><td>ESP32-S3 Dev Module</td><td>بوابة MQTT; يستقبل من Arduino ويرسل إلى الوسيط ويستقبل الأوامر.</td></tr>
+  <tr><td>FQBN Arduino</td><td class='ltr'>arduino:avr:nano</td></tr>
+  <tr><td>FQBN ESP</td><td class='ltr'>esp32:esp32:esp32s3</td></tr>
+  <tr><td>Serial baud</td><td class='ltr'>9600</td></tr>
+</table>
+
+<h3>3.1 خريطة الأطراف</h3>
+<pre>Arduino TX (Pin 1) --[2k ohm]--> ESP GPIO44 (RXD2)
+                          |
+                       [3.3k ohm]
+                          |
+                         GND
+
+ESP GPIO17 (TXD2) ------------------> Arduino RX (Pin 0)
+GND(Arduino) = GND(ESP) = GND(المصدر)   <-- نقطة واحدة مشتركة</pre>
+
+<div class='danger'>لا تستخدم GPIO43 أبداً لأمر السرعة: هو UART0 الخاص بـ Serial Monitor في ESP32-S3. كما لا تستخدم GPIO16 بعد فشل اختبار loopback عليه. الخلاصة: RX ثابت على GPIO44 و TX فقط انتقل إلى GPIO17.</div>
+
+<h3>3.2 التغذية</h3>
+<ul>
+  <li>الطريقة المعتادة: كابل USB من اللابتوب إلى ESP (تغذية + Serial Monitor).</li>
+  <li>للتشغيل المستقل: شاحن موبايل عادي <strong>5V DC</strong> بتيار <strong>1A على الأقل</strong>، ويفضل 2A، عبر منفذ USB-C في ESP.</li>
+  <li>عند الدخول المباشر: 5V على pin <code>5V/VIN</code> وليس على <code>3.3V</code>.</li>
+  <li>لا تُغذّ Arduino من pin 3.3V في ESP؛ Arduino يحتاج مصدره الخاص.</li>
+  <li>فصل كابل USB لا يوقف المنصة إذا كان ESP مغذّى من الشاحن؛ الشارة تتبع MQTT وليس USB.</li>
+</ul>
+
+<div class='page-break'></div>
+
+<h2>4) البروتوكولات والموضوعات والمخططات</h2>
+
+<h3>4.1 UART Serial</h3>
+<table>
+  <tr><th>الاتجاه</th><th>الصيغة</th><th>الملاحظات</th></tr>
+  <tr><td>Arduino → ESP</td><td class='ltr'>V:&lt;volt&gt;,I:&lt;mA&gt;,VIB:&lt;m/s2&gt;,SPD:&lt;pct&gt;,MODE:L|R\n</td><td>كل 1000 ms؛ الصيغة القديمة بلا MODE مقبولة أيضاً وتُعامل كـ LOCAL.</td></tr>
+  <tr><td>ESP → Arduino</td><td class='ltr'>MODE:L|R,SPD:&lt;0..100&gt;\n</td><td>أمر السرعة؛ يُعاد إرسال آخر أمر REMOTE كل 5 ثوانٍ.</td></tr>
+</table>
+
+<h3>4.2 MQTT Topics</h3>
+<table>
+  <tr><th>Topic</th><th>QoS</th><th>Retain</th><th>Payload</th><th>الغرض</th></tr>
+  <tr><td class='ltr'>prime-factory/data</td><td>1</td><td>false</td><td>JSON</td><td>القراءات الحية؛ لا تُخزّن في الوسيط.</td></tr>
+  <tr><td class='ltr'>prime-factory/status</td><td>1</td><td>true</td><td>ONLINE / OFFLINE</td><td>حالة الجهاز + LWT عند انقطاع غير متوقع.</td></tr>
+  <tr><td class='ltr'>prime-factory/control</td><td>1</td><td>true</td><td class='ltr'>MODE:L|R,SPD:0..100</td><td>أمر السرعة؛ يبقى محفوظاً حتى بعد إعادة اتصال ESP.</td></tr>
+</table>
+
+<p>عنوان الوسيط المحلي: <code class='ltr'>192.168.100.16:1883</code> (IP اللابتوب على Wi-Fi). عميل ESP: <code>esp32_station</code>. عميل Dash: <code>prime_dashboard_&lt;pid&gt;</code>.</p>
+
+<h3>4.3 حقل JSON وخريطة SQLite</h3>
+<table>
+  <tr><th>حقل ESP JSON</th><th>عمود SQLite</th><th>الحالة الحالية</th></tr>
+  <tr><td>device</td><td>device_id</td><td>esp32_station</td></tr>
+  <tr><td>uptime_ms</td><td>uptime_ms</td><td>من ESP</td></tr>
+  <tr><td>voltage_v</td><td>voltage_v</td><td>حي</td></tr>
+  <tr><td>current_a / current</td><td>current_a</td><td>حي</td></tr>
+  <tr><td>vibration_ms2</td><td>vibration_ms2</td><td>حي، بوحدة m/s²</td></tr>
+  <tr><td>speed_pct</td><td>speed_pct</td><td>نسبة مئوية وليس RPM</td></tr>
+  <tr><td>weight</td><td>weight_g</td><td>NULL حتى يضاف حساس</td></tr>
+  <tr><td>temp</td><td>temp_c</td><td>NULL في DB؛ 0.0 للآلات الحاسبة فقط</td></tr>
+  <tr><td>status</td><td>status</td><td>IDLE حالياً</td></tr>
+  <tr><td>error</td><td>anomalies</td><td>يُسجّل فقط إذا كان غير فارغ</td></tr>
+  <tr><td>motor_current / servo_angle</td><td>motor_current / servo_angle</td><td>NULL</td></tr>
+  <tr><td>control_mode / control_speed_pct</td><td>حقلان في SensorReading</td><td>إقرار من الجهاز</td></tr>
+  <tr><td>duplicate:true</td><td>لا شيء</td><td>يُتجاهل تماماً في التخزين والطاقة</td></tr>
+</table>
+
+<h3>4.4 قواعد العرض والحداثة</h3>
+<ul>
+  <li><code>LIVE_TIMEOUT_SEC = 5</code> للرسوم والآلات الحاسبة فقط.</li>
+  <li>بطاقات KPI تعرض أحدث قيمة وصلت حتى لو عمرها أكثر من 5 ثوانٍ، مع نص حداثة ملوّن.</li>
+  <li>الرسوم لا تستخدم بيانات قديمة من SQLite كبديل؛ تعرض آخر 60 ثانية من الذاكرة فقط.</li>
+  <li>الطاقة: <code>E(Wh) = V × I × Δt / 3600</code>؛ أي فجوة أكبر من 60 ثانية تُتجاهل لتجنب قفزة وهمية.</li>
+</ul>
+
+<h2>5) هيكل الملفات وقاعدة البيانات</h2>
+<pre>Github/prime-factory-main/
+├── app.py                         # Dash main
+├── requirements.txt
+├── start-platform.bat             # تشغيل المنصة بضغطة واحدة
+├── start-share-link.bat           # رابط عام للقراءة فقط
+├── share-link.ps1
+├── init_db.py                     # إعادة 생성 DB محلياً
+├── config/schema.sql
+├── assets/custom.css
+├── backend/
+│   ├── mqtt_subscriber.py         # MQTT -> SQLite + الطاقة + أوامر التحكم
+│   ├── serial_reader.py           # SensorReading
+│   ├── simulation_engine.py ...   # وضع المحاكاة
+├── data/factory.db                # محلي فقط - لا يُرفع أبداً
+├── share-link.txt                 # محلي فقط - يتجاهله Git
+├── README.md
+├── INTEGRATION-CHANGES.md
+├── PROJECT-REFERENCE.html / .pdf  # هذا المرجع
+└── docs/Software-Constitution/
+
+Project-coding/                    # خارج GitHub اختيارياً
+├── Arduino-Main/Project-main/Project-main.ino
+└── ESP-Main/project-auxiliary/project-auxiliary.ino</pre>
+
+<div class='danger'>قاعدة البيانات <code>data/factory.db</code> وملفات <code>*.db-wal</code> / <code>*.db-shm</code> مستبعدة في .gitignore. لإعادة الإنشاء: <code>python init_db.py</code>. لا ترفع أي ملف DB إلى GitHub.</div>
+
+<div class='page-break'></div>
+
+<h2>6) سجل التعديلات التفصيلي</h2>
+
+<h3>6.1 التكامل الأساسي (Track B)</h3>
+<ul>
+  <li>تحويل Real Mode من Serial مباشر إلى مسار ESP → MQTT → SQLite.</li>
+  <li>إضافة <code>backend/mqtt_subscriber.py</code> مع اشتراك QoS 1 وإعادة اتصال تلقائية.</li>
+  <li>توسيع <code>schema.sql</code> بـ voltage_v و vibration_ms2 و speed_pct و uptime_ms.</li>
+  <li>إضافة جدول <code>energy_log</code> وجعله يُنشأ عبر init_db.py.</li>
+  <li>فصل الصفحات: <code>/</code>، <code>/real</code>، <code>/simulation</code>.</li>
+  <li>إضافةFreshness Hint مستقل عن شارة الاتصال.</li>
+  <li>إيقاف debug/reloader واستخدام client id لكل عملية.</li>
+</ul>
+
+<h3>6.2 الواجهة والرسم</h3>
+<ul>
+  <li>تقسيم Real Mode إلى خمس تبويبات مثبتة: Overview، Speed Control، Live Charts، Analytics، Energy Log.</li>
+  <li><code>switch_real_tab()</code> يغيّر <code>style</code> فقط؛ كل المكونات تظل مثبتة حتى تعملCallbacks.</li>
+  <li>لوحة ألوان موحّدة slate/teal عبر <code>COLORS</code> و <code>apply_plot_style()</code>.</li>
+  <li>تحويل بطاقات KPI الست إلى أعمدة رأسية <code>.reading-stack</code>.</li>
+  <li>شريط تبويبات لاصق ورسوم <code>responsive=True</code>.</li>
+</ul>
+
+<h3>6.3 سجل الطاقة</h3>
+<ul>
+  <li>منتقي فترة: Today / This month / This year.</li>
+  <li>الرسم والجدول وCSV يتبعون الفترة المختارة؛ أعلى طاقة/zero buckets Included.</li>
+  <li>التعريفة قابلة للتعديل (افتراضي 2.55 EGP/kWh) وال تكلفة تُحسب مباشرة.</li>
+  <li>Print / Save PDF يعزل بطاقة الطاقة فقط عبر CSS.</li>
+</ul>
+
+<h3>6.4 التحكم في السرعة</h3>
+<ul>
+  <li>Topic جديد retained: <code>prime-factory/control</code>.</li>
+  <li>LOCAL يترك البوتينسيومتر؛ REMOTE يرسل 100/80/50/0 أو قيمة مخصصة 0-100.</li>
+  <li>Telemetry يعكس الوضع عبر <code>control_mode</code> و <code>control_speed_pct</code>.</li>
+  <li>ESP يعيد إرسال آخر أمر REMOTE كل 5 ثوانٍ حماية من إعادة ضبط Arduino.</li>
+  <li>Closing back to LOCAL يرسل <code>MODE:L,SPD:&lt;last&gt;</code>.</li>
+</ul>
+
+<h3>6.5 البرنامج الثابت (Firmware)</h3>
+<ul>
+  <li>تقليل CURRENT_SAMPLES من 300 إلى 40 و VIBRATION_SAMPLES من 50 إلى 12.</li>
+  <li>إرسال Telemetry قبل قراءة الحساسات حتى لا يتأخر الـ 1 s Tick.</li>
+  <li>ESP يعيد نشر آخر عينة كل 1 s مع <code>duplicate:true</code> والمشترك يتجاهلها.</li>
+  <li>استبدال <code>sscanf(%f)</code> بـ <code>strtok_r()</code> + <code>atof()</code> لتفادي مشكلة ربط float على ESP32.</li>
+  <li>قبول الصيغة القديمة ذات الحقول الأربعة.</li>
+  <li>تقليل Wi-Fi/MQTT retry من 10000/5000 ms إلى 2000/2000 ms وإضافة حالات IDLE و NO_SSID_AVAIL.</li>
+  <li>حد إنذار الجهد: ≤9.0V والرجوع عند ≥10.2V (هستيريسس 1.2V) في Arduino، ومطابقته للعرض في ESP.</li>
+</ul>
+
+<h3>6.6 المشاركة وال구성</h3>
+<ul>
+  <li>إضافة وضع قراءة فقط: <code>/real?view=readonly</code> يخفي تبويب التحكم ويعطّل المدخلات ويرفض الأوامر في السيرفر.</li>
+  <li>إضافة <code>start-platform.bat</code> واختصار <code>PRIME-Factory.lnk</code>.</li>
+  <li>إضافة <code>start-share-link.bat</code> / <code>share-link.ps1</code> واختصار <code>PRIME-Share-Link.lnk</code>.</li>
+  <li>تنزيل cloudflared محلياً في <code>C:\prime-factory\cloudflared.exe</code> وتوليد رابط trycloudflare.</li>
+  <li>رفع الكود فقط إلى GitHub في ثلاثة commits؛ لا قاعدة بيانات ولا سكتشات ولا كلمات سر.</li>
+</ul>
+
+<h3>6.7 سجلCommits</h3>
+<table>
+  <tr><th>Commit</th><th>الوصف</th></tr>
+  <tr><td class='ltr'>c67c281</td><td>التكامل الأساسي، الواجهة، الطاقة، التحكم، إزالة DB artifacts.</td></tr>
+  <tr><td class='ltr'>4a5d8e4</td><td>إضافة وضع القراءة فقط وتوثيق المشاركة.</td></tr>
+  <tr><td class='ltr'>2408c86</td><td>إضافة سكربت الرابط العام بضغطة واحدة وتجاهل share-link.txt.</td></tr>
+</table>
+
+<div class='page-break'></div>
+
+<h2>7) سجل المشاكل والأخطاء وحلولها</h2>
+<p>الجدول التالي يوثّق كل ما واجهناه، بما في ذلك الملاحظات التي أرسلتها أثناء الاختبار.</p>
+
+<table>
+  <tr><th>#</th><th>العرض / ما قلته</th><th>السبب</th><th>الحل</th><th>نتيجة التحقق</th></tr>
+  <tr><td>1</td><td>الشارة تتحول OFFLINE رغم اتصال ESP.</td><td>callback كان يحكم على الاتصال من عمر آخر قراءة؛ ESP يرسل كل ~48s في IDLE.</td><td>فصل <code>_mqtt_connection_badge()</code> عن <code>_data_freshness_hint()</code>.</td><td>ONLINE مع <code>Last reading Xs ago</code>؛ OFFLINE فقط عند LWT.</td></tr>
+  <tr><td>2</td><td>بطاقات القيم تختفي وتعود صفر بين الرسائل.</td><td><code>LIVE_TIMEOUT_SEC=5</code> كان يطبق على KPI أيضاً.</td><td>KPI يقرأ <code>get_latest()</code>؛ الرسوم والآلات الحاسبة تستخدم <code>get_latest_fresh()</code>.</td><td>القيمة تظل ظاهرة مع نص حداثة ملوّن.</td></tr>
+  <tr><td>3</td><td>القراءات بطيئة جداً (كل ~46-54 ثانية).</td><td>أخذ عينات ADC/I²C حاجز قبل الإرسال.</td><td>تقليل العينات، إرسال Telemetry قبل readSensors، إعادة نشر duplicate كل 1s.</td><td>تحديث شبه لحظي؛ duplicate لا يضاعف الصفوف.</td></tr>
+  <tr><td>4</td><td>سطر Telemetry يظهر في [RAW] لكن التحليل يفشل.</td><td><code>sscanf(%f)</code> لا يربط float على ESP32 Arduino دون flag.</td><td><code>strtok_r()</code> + <code>atof()</code> / <code>atoi()</code>.</td><td>أنت أكدت أن النتيجة 100% صحيحة.</td></tr>
+  <tr><td>5</td><td>بعد توصيل أمر السرعة على GPIO43 اختفت البيانات.</td><td>GPIO43 هو UART0/Serial Monitor.</td><td>أبقينا RX على GPIO44 ونقلنا TX فقط إلى GPIO17؛ منع GPIO16.</td><td>Telemetry وcontrol يعملان معاً.</td></tr>
+  <tr><td>6</td><td>خطأ في بناء صفحة Real بعد إضافة حقل الطاقة.</td><td><code>dbc.Input</code> لا يدعم <code>bs_size</code>.</td><td>استبداله بـ <code>size="sm"</code>.</td><td>الصفحة تُبنى بلا أخطاء كونسول.</td></tr>
+  <tr><td>7</td><td>عنوان الرسم ظهر كـ Monthl.</td><td>استخدام مفتاح التجميع <code>monthly</code> بدل التسمية المعروضة.</td><td> استخدام DAY/MONTH/YEAR label مع categorical x-axis.</td><td>عناوين صحيحة Today/Month/Year.</td></tr>
+  <tr><td>8</td><td>فشل تثبيت pandas/numpy على Python 3.14.</td><td>إصدارات مثبتة قديمة بلا cp314 wheels.</td><td>رفع المتطلبات إلى &gt;=3.0.0 / &gt;=2.0.0.</td><td>التثبيت نجح على 3.15.2 والسيرفر بدأ.</td></tr>
+  <tr><td>9</td><td>ملفات DB و pycache كانت داخل Git.</td><td>إصدارات قديمة أُضيفت بالخطأ.</td><td>حذفها وتوسيع .gitignore و init_db.py.</td><td>الـ repo نظيف؛ DB محلي فقط.</td></tr>
+  <tr><td>10</td><td>عميلا MQTT يفصلان بعضهما.</td><td>Dash reloader أنشأ عملية ثانية بنفس client id.</td><td><code>prime_dashboard_&lt;pid&gt;</code> + <code>debug=False</code> + <code>use_reloader=False</code>.</td><td>اتصال واحد مستقر.</td></tr>
+  <tr><td>11</td><td>ONLINE يتأخر كثيراً بعد انقطاع الإنترنت.</td><td>retry时间为 10s للواي فاي و5s للـ MQTT.</td><td>تقليلهم إلى 2s/2s وإضافة WL_IDLE_STATUS و WL_NO_SSID_AVAIL.</td><td>الشارة تعود خلال ثوانٍ.</td></tr>
+  <tr><td>12</td><td>قلت: عند فصل كابل المنصة تصبح OFFLINE.</td><td>كابل USB كان هو التغذية الفعلية لـ ESP.</td><td>توضيح السلوك وتحديد مواصفات الشاحن.</td><td>سلوك صحيح ومتوقع.</td></tr>
+  <tr><td>13</td><td>قلت: أنا فاصل USB ولم أوصل الكابل والمنصة تشتغل.</td><td>الداشبورد يعمل على اللابتوب، أما ESP فبلا تغذية.</td><td>أوضحنا أن الويب شغال والبيانات متوقفة.</td><td>بعد وصل USB عادت القراءات فوراً (قلت那是).</td></tr>
+  <tr><td>14</td><td>قلت: غذّيت ESP من مصدر آخر لكنه OFFLINE.</td><td>المصدر External لم يكن كافياً/متصلاً فعلياً.</td><td>شاحن 5V/1A على USB-C، أرضية مشتركة، عدم الدخول على 3.3V.</td><td>قلت: اشتغل وكل حاجة تمام.</td></tr>
+  <tr><td>15</td><td>اختلاف فتح الرابط للدكتور والزملاء.</td><td>الصفحة الافتراضية فيها تحكم بالسرعة.</td><td><code>?view=readonly</code> يخفي التحكم ويرفض الأوامر server-side.</td><td>_tab display:none، كل inputs disabled، الرسالة 🔒.</td></tr>
+  <tr><td>16</td><td>قلت: خطوة AI لسه جاية، لا نريد البيانات تتعرض.</td><td>قلق من رفع DB أو تعريض الوسيط.</td><td>لا رفع DB، لا كشف 1883، النفق يعرض صفحات فقط.</td><td>الرابط العام اختُبر وHTTP 200 مع قراءة حية.</td></tr>
+  <tr><td>17</td><td>سطور context canceled في سجل cloudflared.</td><td>تبويب قديم أغلق أثناء تحديث Dash.</td><td>لا إجراء؛ سطور معلوماتية فقط.</td><td>الرابط الحالي يعمل، لا أخطاء كونسول.</td></tr>
+  <tr><td>18</td><td>قالب older browser لا يظهر التغييرات.</td><td> callbacks قديمة محفوظة في التبويب.</td><td>Ctrl + F5 بعد كل تغيير layout/CSS.</td><td>الواجهة تُحدّث بشكل صحيح.</td></tr>
+  <tr><td>19</td><td>gh auth setup-git فشل.</td><td>git.exe غير موجود في PATH.</td><td>استخدام المسار الكامل لـ git.exe و gh.exe.</td><td>الpush نجح رغم التحذير.</td></tr>
+  <tr><td>20</td><td>إنذار الجهد عند 10.2V كان مبكراً.</td><td>العتبة القديمة 15% أقل من 12V.</td><td>≤9.0V والرجوع ≥10.2V بهستيريسس 1.2V.</td><td>Nano compile OK؛ ESP compile OK.</td></tr>
+</table>
+
+<div class='page-break'></div>
+
+<h2>8) المعلومات المهمة والتحذيرات</h2>
+<div class='danger'>
+  <strong>أمنياً:</strong> لا تبع رابط <code>/real</code> العادي لأحد غير موثوق؛ استخدم دائماً الرابط المنتهي بـ <code>?view=readonly</code>. لا تفتح المنفذ 1883 على الإنترنت، ولا ترفع قاعدة البيانات أو كلمات سر الشبكة إلى GitHub.
+</div>
+<ul>
+  <li>رابط المشاركة الحالي وقت الكتابة: <code class='ltr'>https://attribute-mattress-remember-poison.trycloudflare.com/real?view=readonly</code> — يتغير عند كل إعادة تشغيل للنفق.</li>
+  <li>لإعادة توليده: ضغطة على <strong>PRIME-Share-Link</strong> أو تشغيل <code>start-share-link.bat</code>. للإيقاف: <code>start-share-link.bat -Stop</code>.</li>
+  <li>تشغيل المنصة يومياً: ضغطة على <strong>PRIME-Factory</strong> أو <code>start-platform.bat</code>.</li>
+  <li>خطوة تدريب AI القادمة تقرأ من <code>data/factory.db</code> المحلية؛ لا يلزم أي بيانات أو خدمة جديدة.</li>
+  <li>الحقول غير المتاحة (weight/temp/motor_current/servo_angle) تظل null ولا تُختلق قيم.</li>
+  <li>Status الحالي للقراءة IDLE؛ RPM و units لا تزال 0 لأن ESP لا يرسلها.</li>
+  <li>المستودع الرسمي: <code class='ltr'>https://github.com/mohamedkhedr6412-cpu/prime-factory</code>.</li>
+</ul>
+
+<h3>8.1 السلوك المتوقع عند فصل الأسلاك</h3>
+<table>
+  <tr><th>الحالة</th><th>الشارة</th><th>الحداثة</th><th>التفسير</th></tr>
+  <tr><td>فصل طاقة/USB عن ESP</td><td>🔴 OFFLINE فوراً</td><td>آخر قراءة قديمة</td><td>LWT يعمل بشكل صحيح.</td></tr>
+  <tr><td>فصل سلك TX بين Arduino وESP مع بقاء ESP مغذّى</td><td>🟢 ONLINE</td><td>Last reading Xs ago</td><td>MQTT ما زال متصلاً؛ البيانات توقفت.</td></tr>
+  <tr><td>فصل Wi-Fi أو الراوتر</td><td>🔴 OFFLINE بعد LWT</td><td>قديمة</td><td>الوسيط يخزّن OFFLINE.</td></tr>
+  <tr><td>إعادة توصيل الطاقة/USB</td><td>🟢 ONLINE خلال ثوانٍ</td><td>Live data • just now</td><td>رسالة ONLINE محفوظة + قراءات جديدة.</td></tr>
+</table>
+
+<h2>9) الأوامر والفحوصات النهائية</h2>
+<pre># إعادة قاعدة البيانات محلياً
+.\venv\Scripts\python.exe init_db.py
+
+# تشغيل المنصة
+start-platform.bat
+
+# توليد رابط المشاركة
+start-share-link.bat
+
+# تجميع البرنامج الثابت
+arduino-cli.exe compile --fqbn arduino:avr:nano --quiet "...\Project-main"
+arduino-cli.exe compile --fqbn esp32:esp32:esp32s3 --quiet "...\project-auxiliary"
+
+# فحص الحالة في الوسيط
+mosquitto_sub.exe -h 127.0.0.1 -t prime-factory/status -v -C 1
+
+# فحص المنصة
+Invoke-WebRequest http://127.0.0.1:8050/real -UseBasicParsing</pre>
+
+<h3>9.1 نتائج التحقق النهائية</h3>
+<ul>
+  <li>Arduino Nano compile: OK (<code>ARDUINO_COMPILE_EXIT=0</code>).</li>
+  <li>ESP32-S3 compile: OK (<code>ESP_COMPILE_EXIT=0</code>).</li>
+  <li>Python py_compile لـ app.py والوحدات الخلفية: OK.</li>
+  <li>المنصة: HTTP 200 على <code>/real</code> والمنفذ 8050 يستمع على 0.0.0.0.</li>
+  <li>الرابط العام: HTTP 200، شارة ONLINE، <code>Live data • just now</code>، جهد 11.3V.</li>
+  <li>قراءة فقط: تبويب التحكم مخفي، كل الأزرار disabled، لا أخطاء كونسول.</li>
+  <li>المستودع نظيف بعد الرفع؛ آخر commit <code>2408c86</code> على main.</li>
+</ul>
+
+<h2>10) المراجع والروابط</h2>
+<ul>
+  <li>GitHub: <span class='ltr'>https://github.com/mohamedkhedr6412-cpu/prime-factory</span></li>
+  <li>Cloudflared download: <span class='ltr'>https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe</span></li>
+  <li>Tailscale (بديل أثبت للروابط الثابتة): <span class='ltr'>https://tailscale.com/download/windows</span></li>
+  <li>إعداد الوسيط المحلي: <span class='ltr'>C:\prime-factory\mosquitto\mosquitto_prime.conf</span></li>
+  <li>الوثيقة الداخلية: <span class='ltr'>INTEGRATION-CHANGES.md</span> و <span class='ltr'>README.md</span></li>
+</ul>
+
+<div class='info center'>نهاية المرجع - أُعدّ كمرجع نهائي لمرحلة Phase 1 قبل الانتقال إلى خطوة تدريب نموذج AI.</div>
+
+</body>
+</html>

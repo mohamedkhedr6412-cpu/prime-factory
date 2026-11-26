@@ -207,4 +207,5 @@ See Constitution §19 (Final Testing Checklist).
 - Real Mode uses the local ESP32-S3 → Mosquitto → SQLite path.
 - To speed up updates, `Project-main.ino` now sends telemetry every 1 s with fewer blocking sensor samples, and `project-auxiliary.ino` republishes the last sample every 1 s with `"duplicate": true`; the subscriber ignores duplicate republishes so SQLite and energy are not double counted. Both sketches must be re-uploaded to the boards.
 - Never commit `*.db` files; recreate the local DB with `python init_db.py`.
+- Full Arabic reference and troubleshooting log: `PROJECT-REFERENCE.pdf` (source: `PROJECT-REFERENCE.html`). It documents tools, protocols, wiring, all fixes, and the complete issue log.
 - Constitution reference: `docs/Software-Constitution/v1.0-complete.html`

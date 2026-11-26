@@ -327,3 +327,4 @@ Problem: readings reached the dashboard only every ~46–54 s. The Dash polls ev
 - Both modified sketches must be re-uploaded by the user; no hardware upload was performed here.
 - Follow-up: with the command wire on GPIO43, the ESP reported "no data" while still forwarding MQTT commands. Moved `Serial2` to GPIO16/17 and added RX-byte diagnostics; ESP32-S3 compile remained OK.
 - The local work was committed as `c67c281` and pushed to `origin/main`; no database or firmware sketch was uploaded.
+- Added `PROJECT-REFERENCE.html` and generated `PROJECT-REFERENCE.pdf`: an Arabic reference covering every tool, protocol, wiring rule, change, and the full troubleshooting log reported by the user.
