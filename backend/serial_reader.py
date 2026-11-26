@@ -8,7 +8,11 @@ Baud: 9600
 Only Arduino Uno — no ESP32, no MQTT in this phase.
 """
 
-import serial
+try:
+    import serial
+except ImportError:  # pyserial is only needed by the legacy SerialReader.
+    serial = None
+
 import threading
 from datetime import datetime
 from dataclasses import dataclass
@@ -18,16 +22,26 @@ from collections import deque
 
 @dataclass
 class SensorReading:
-    """Raw data from Arduino Serial (1 Hz)."""
+    """Reading used by the platform calculators.
+
+    The first 9 fields are the original Arduino Serial contract. The trailing
+    fields are MQTT/ESP additions (with defaults, so old serial code works).
+    """
     timestamp: datetime
     state: str          # IDLE | RUNNING | FAULT
-    rpm: float          # Actual speed from TCRT
-    units: int          # Cumulative revolution count
+    rpm: float          # Actual speed from TCRT (0 until an RPM sensor exists)
+    units: int          # Cumulative revolution count (0 for ESP payload)
     current_a: float    # Current from ACS712
     voltage_v: float    # Source voltage (×5 divider)
-    temp_c: float       # Motor temperature (DS18B20)
-    vib_rms: float      # Vibration RMS (ADXL345, gravity removed)
-    setpoint_rpm: int   # Operator setpoint from Pot
+    temp_c: float       # Motor temperature (DS18B20); 0.0 when payload is null
+    vib_rms: float      # Vibration RMS in g (converted from m/s^2 for MQTT)
+    setpoint_rpm: int   # Operator setpoint from Pot (0 for ESP payload)
+    speed_pct: float = 0.0          # ESP: motor speed percentage
+    device_id: str = "esp32_station"  # ESP: client/device identifier
+    uptime_ms: int = 0              # ESP: millis() at publish time
+    vibration_ms2: float = 0.0      # ESP: raw vibration in m/s^2
+    control_mode: str = "LOCAL"     # ESP echo: LOCAL potentiometer / REMOTE MQTT
+    control_speed_pct: float = 0.0  # ESP echo: last command speed from dashboard
 
 
 class SerialReader:
@@ -48,7 +62,9 @@ class SerialReader:
         self._serial: Optional[serial.Serial] = None
 
     def start(self):
-        """Start background reading thread."""
+        """Start background reading thread (legacy serial source)."""
+        if serial is None:
+            raise RuntimeError("pyserial is required for SerialReader.")
         try:
             self._serial = serial.Serial(self.port, self.baud, timeout=1)
             self.is_connected = True

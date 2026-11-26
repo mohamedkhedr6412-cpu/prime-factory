@@ -12,11 +12,37 @@ PRIME-Factory is a dual-mode monitoring dashboard built with Python + Dash/Plotl
 It strictly separates **Real Hardware Mode** (reading live data from Arduino Uno via Serial)
 from **Industrial Simulation Mode** (demonstrating the value of PdM/EMS/MES on realistic industrial scenarios).
 
-**Real Mode:** Reflects the physical hardware (GA25-370 Motor, ACS712, ADXL345, DS18B20, TCRT5000).
-No ESP32 in this phase.
+**Real Mode:** The Arduino sends `V,I,VIB,SPD` to an ESP32-S3, which publishes JSON to
+`prime-factory/data` (QoS 1) and `prime-factory/status` (retained + LWT). The dashboard
+subscribes via `backend/mqtt_subscriber.py` and stores readings in `data/factory.db`.
+`current_a` comes from the ESP payload; `weight`, `temp`, `motor_current` and `servo_angle` stay `NULL` until those sensors are added. KPI cards show the newest received reading with a live/stale hint; charts and calculators still use only readings from the last 5 seconds, so old values are never treated as live. The status badge follows the retained MQTT status/LWT, and vibration is displayed in `m/s²` to match the sensor screen.
+
+**Speed control:** Real Mode has a **LOCAL / REMOTE** selector. `LOCAL` leaves the Arduino potentiometer in charge. `REMOTE` publishes `MODE:R,SPD:0..100` to `prime-factory/control` (QoS 1, retained); the ESP forwards it to the Arduino on `Serial2` and re-confirms it every 5 s. The dashboard offers 100%, 80%, 50%, 0% presets and a custom 0–100 input. Switching back to `LOCAL` publishes `MODE:L,SPD:<last>` so the potentiometer takes over again. Telemetry echoes `control_mode` and `control_speed_pct`, which the card shows as the hardware acknowledgement. `Serial2` keeps ESP GPIO44 (`RXD2`, the path that already worked for telemetry) and moves only the command TX to GPIO17 (`TXD2`); GPIO43 is left for the ESP32-S3 Serial Monitor/UART0. Wiring: Arduino TX (Pin 1) → level shifter → ESP GPIO44, and ESP GPIO17 → Arduino RX (Pin 0), with a common ground.
+
+**Energy log:** Every new reading also accumulates motor energy into `energy_log` using `E(Wh) = V × I × Δt / 3600`. Gaps longer than 60 s are skipped so an offline device does not create a fake spike. The Real Mode page uses a **Show period** selector (Today / This month / This year) and displays only that period's total, Wh sublabel, cost and sample count. Its bar chart shows consumption **inside** the selected period — by hour today, by day this month, or by month this year — with zero-valued buckets for hours/days/months without samples. Peak power, run time and duty cycle remain global logged statistics. The selected breakdown table and CSV export always match the chosen period; Print / Save PDF still isolates the energy card. Example: a 10 W motor running for 30 minutes consumes `10 × 0.5 = 5 Wh = 0.005 kWh`.
+
+**Real Mode navigation:** The Real Hardware Monitor is split into five top tabs: **Overview**, **Speed Control**, **Live Charts**, **Analytics** and **Energy Log**. The header with the MQTT badge and freshness hint stays pinned while scrolling. All panels remain mounted, so live updates, controls, CSV export and print/PDF keep working when switching tabs.
+
+**Visual style:** The dashboard uses a calm slate/teal palette with soft contrast for comfortable long viewing. On the Overview tab, the six live readings are stacked vertically — one labelled card per value — instead of a dense horizontal KPI row.
 
 **Simulation Mode:** Focuses on the **Fertilizer Industry** (3 machines) and **Packaging Industry** (3 machines).
 Uses a sequential execution engine: Run "Without PRIME-Factory" → Finish → Run "With PRIME-Factory" → Finish → Display Dynamic Comparison Report.
+
+**Pages:** Opening the app shows only the Home page (`/`). Choose a model there to open its dedicated page:
+`/real` for live hardware monitoring or `/simulation` for the industrial simulator. Each page contains
+only the components and data belonging to that model, and has a **Home** link to return.
+
+---
+
+## Quick Start (one click)
+
+Double-click **PRIME-Factory** on the Desktop, or run `start-platform.bat` from this folder. The launcher:
+
+1. Makes sure the Mosquitto service is running.
+2. Starts the Dash server only if it is not already running.
+3. Opens `http://127.0.0.1:8050/real` automatically.
+
+To stop the dashboard later, close the minimized **PRIME-Factory Dashboard** console window. Mosquitto is a Windows service set to **Automatic**, so it is normally already running.
 
 ---
 
@@ -47,7 +73,8 @@ prime-factory/
 │
 ├── backend/
 │   ├── __init__.py
-│   ├── serial_reader.py            # Real Mode: Arduino Serial parser (@9600 baud)
+│   ├── serial_reader.py            # SensorReading dataclass (shared by calculators)
+│   ├── mqtt_subscriber.py          # Real Mode: ESP32 MQTT -> SQLite + energy_log
 │   ├── simulation_engine.py        # Simulation Mode: data generator
 │   ├── machine_profiles.py         # MACHINE_PROFILES dictionary (6 machines + financial constants)
 │   ├── financial_calculator.py     # Dynamic loss calculation (no hardcoded constants)
@@ -84,8 +111,9 @@ prime-factory/
 ## Quick Start (Windows)
 
 ### Prerequisites
-- Python 3.14 (64-bit)
-- Arduino Uno connected (for Real Mode only)
+- Python 3.14+ 64-bit (tested on 3.15.2)
+- Mosquitto broker reachable on the LAN (default `192.168.100.16:1883`; override with `MQTT_HOST`)
+- ESP32-S3 gateway powered and publishing to `prime-factory/data`
 
 ### Setup (first time only)
 
@@ -93,31 +121,40 @@ prime-factory/
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+python init_db.py
 ```
 
 ### Run (every session)
 
 **Terminal 1 — Start the dashboard:**
 ```powershell
+$env:MQTT_HOST = "127.0.0.1"
 .\venv\Scripts\python.exe app.py
 ```
-Then open: http://127.0.0.1:8050
+Then open: http://127.0.0.1:8050  
+For the no-typing version, just double-click the Desktop shortcut **PRIME-Factory** (see Quick Start above).
 
-**Real Mode:** Connect Arduino Uno to COM3 (default), click "Enter Real Mode".
+**Real Mode:** Power the ESP32 gateway, click "Enter Real Mode". The badge shows the retained MQTT status (`ONLINE`/`OFFLINE`), and a small hint beside it says whether the KPI data is live or when the last packet arrived. Refresh any already-open Real Mode tab after updating the dashboard so it loads the new callback layout.
+
+For speed control, re-upload both modified sketches. Keep the existing Arduino TX → level shifter → ESP **GPIO44 (`RXD2`)** wire exactly as before, and connect **GPIO17 (`TXD2`)** to Arduino RX (Pin 0). GPIO43 is UART0 TX for the ESP32-S3 Serial Monitor and must not be reused for the command link. Keep a common ground and disconnect the TX wire while uploading firmware over USB.
 **Simulation Mode:** Click "Enter Simulation Mode", select Industry → Equipment → Fault → Run Scenario.
 
 ---
 
 ## Modes
 
-### Real Mode (Arduino Serial Only)
-- Reads CSV payload: `STATE,RPM,UNITS,I_A,V_V,T_C,VIB,SETPOINT` @ 9600 baud
-- Live KPI cards updated every 1 second
-- Live charts (Current & Voltage, Vibration & Temperature) — last 60 seconds
-- MES/EMS/PdM metrics calculated dynamically from live Arduino data
+### Real Mode (ESP32 → MQTT)
+- Subscribes to `prime-factory/data` (QoS 1, retain=false) and `prime-factory/status` (retained + LWT)
+- Publishes speed commands to `prime-factory/control` (QoS 1, retained): `MODE:L|R,SPD:0..100`, with LOCAL/REMOTE selector, presets and custom value
+- KPI cards show the newest reading every 1 second; the hint says `Live data • just now` or how many seconds ago the last packet arrived
+- Live charts (Current & Voltage, Vibration & Temperature) — last 60 seconds of fresh (≤5 s old) readings only
+- MES/EMS/PdM metrics calculated dynamically from live data (RPM/units-based values remain placeholders)
 - Rule-Based AI anomaly detection (overcurrent, overtemperature, high vibration, undervoltage)
-- SQLite cache at `data/cache/real_mode_cache.db` stores last 300 seconds
-- **No ESP32, no MQTT** in this phase (Constitution §2.1)
+- Every reading is stored in `data/factory.db`; energy is accumulated in `energy_log`
+- Energy log with a Today / Month / Year selector, matching within-period chart and table, cost, peak power, runtime, duty cycle, CSV export and print/PDF
+- MQTT status badge: `ONLINE` / `OFFLINE` / `CONNECTING` (from connection status, not from reading age)
+- Freshness hint beside the badge: `Live data • just now` or how old the last packet is
+- Arduino sends telemetry every 1 s; ESP republishes the last sample every 1 s with `duplicate: true`, which the subscriber ignores for storage and energy
 
 ### Simulation Mode (Industrial Scenarios)
 - Landing Page → Select Industry (Fertilizer / Packaging)
@@ -144,12 +181,14 @@ See Constitution §18.
 
 See Constitution §19 (Final Testing Checklist).
 
-- Real Mode: Serial connection, KPI updates, charts, boot safety, E-Stop, TCRT counting, DS18B20, alerts, 5-minute stability
+- Real Mode: MQTT status badge, freshness hint, newest-reading KPI cards, live-only charts, LOCAL/REMOTE speed control with presets/custom value, energy log (period selector, within-period chart, tariff, peak/runtime/duty, CSV, print/PDF), 5-minute stability
 - Simulation Mode: Landing page, industry/equipment/fault dropdowns, Phase A/B, comparison report, financial accuracy, all 9 scenarios, mobile responsive
 
 ---
 
 ## Notes
 
-- Old Track B Phase 0 files (MQTT / Mosquitto / ESP32 mock publisher) are **not part** of this constitution and were replaced by the Serial-based Real Mode architecture.
+- Real Mode uses the local ESP32-S3 → Mosquitto → SQLite path.
+- To speed up updates, `Project-main.ino` now sends telemetry every 1 s with fewer blocking sensor samples, and `project-auxiliary.ino` republishes the last sample every 1 s with `"duplicate": true`; the subscriber ignores duplicate republishes so SQLite and energy are not double counted. Both sketches must be re-uploaded to the boards.
+- Never commit `*.db` files; recreate the local DB with `python init_db.py`.
 - Constitution reference: `docs/Software-Constitution/v1.0-complete.html`

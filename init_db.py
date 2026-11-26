@@ -31,9 +31,9 @@ def main():
     tables = [row[0] for row in cur.fetchall()]
     conn.close()
 
-    expected = {"sensor_readings", "production_units", "anomalies", "system_config"}
+    expected = {"sensor_readings", "production_units", "anomalies", "system_config", "energy_log"}
     if expected.issubset(set(tables)):
-        print(f"SUCCESS: All 4 tables created -> {tables}")
+        print(f"SUCCESS: All 5 tables created -> {tables}")
     else:
         print(f"MISSING TABLES: {expected - set(tables)}")
 

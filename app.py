@@ -9,7 +9,8 @@
 # ================================================================
 
 import dash
-from dash import dcc, html, Input, Output, State, callback, no_update
+from dash import (dcc, html, dash_table, Input, Output, State, callback,
+                  clientside_callback, no_update)
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import plotly.graph_objs as go
@@ -27,12 +28,54 @@ from urllib.parse import quote
 from backend.machine_profiles import MACHINE_PROFILES
 from backend.financial_calculator import FinancialCalculator
 from backend.comparison_engine import ComparisonEngine
-from backend.serial_reader import SerialReader, SensorReading
+from backend.serial_reader import SensorReading
+from backend.mqtt_subscriber import MqttSubscriber
 from backend.simulation_engine import SimulationEngine
 from backend.mes_calculator import MESCalculator
 from backend.ems_calculator import EMSCalculator
 from backend.pdm_calculator import PdMCalculator
 from backend.rule_based_ai import RuleBasedAI
+
+# ================================================================
+# 0) Shared design tokens — calm slate palette, easy on the eyes
+# ================================================================
+COLORS = {
+    "bg": "#0f172a",
+    "surface": "#1e293b",
+    "surface_alt": "#273449",
+    "border": "#334155",
+    "text": "#e2e8f0",
+    "muted": "#94a3b8",
+    "primary": "#38bdf8",
+    "success": "#34d399",
+    "warning": "#fbbf24",
+    "danger": "#f87171",
+    "info": "#22d3ee",
+}
+
+
+def apply_plot_style(fig):
+    """Give every Plotly figure the same calm, low-contrast palette."""
+    fig.update_layout(
+        template="plotly_dark",
+        paper_bgcolor=COLORS["surface"],
+        plot_bgcolor=COLORS["surface"],
+        font=dict(family="Segoe UI, Arial, sans-serif",
+                  size=12, color=COLORS["text"]),
+        title_font_color=COLORS["text"],
+        hoverlabel_bgcolor=COLORS["surface_alt"],
+        hoverlabel_font_color=COLORS["text"],
+        hoverlabel_bordercolor=COLORS["border"],
+        legend_font_color=COLORS["text"],
+        legend_font_family="Segoe UI, Arial, sans-serif",
+        legend_font_size=11,
+    )
+    fig.update_xaxes(gridcolor=COLORS["border"],
+                     zerolinecolor=COLORS["border"])
+    fig.update_yaxes(gridcolor=COLORS["border"],
+                     zerolinecolor=COLORS["border"])
+    return fig
+
 
 # ================================================================
 # 1) App Initialization
@@ -49,9 +92,11 @@ server = app.server
 CACHE_DB_PATH = Path("data/cache/real_mode_cache.db")
 CACHE_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-# Real Mode state
-serial_reader = SerialReader(port="COM3", baud=9600)
+# Real Mode state — ESP32 publishes over MQTT; the subscriber writes to SQLite.
+mqtt_subscriber = MqttSubscriber()
+mqtt_subscriber.start()
 real_data_buffer = deque(maxlen=300)  # Last 300 seconds in memory
+last_buffered_timestamp = None  # Avoid appending the same MQTT reading twice
 
 # Calculator instances (Real Mode)
 mes_calc = MESCalculator()
@@ -128,219 +173,420 @@ init_cache_db()
 # ================================================================
 def empty_chart(title="No data yet"):
     fig = go.Figure()
-    fig.update_layout(title=title, template="plotly_dark")
-    return fig
+    fig.update_layout(title=title)
+    return apply_plot_style(fig)
 
 
 # ================================================================
 # 5) Layout — Landing Page
 # ================================================================
-app.layout = dbc.Container([
-    # Header
-    dbc.Row([
-        dbc.Col([
-            html.H1("🏭 PRIME-Factory", className="text-center mb-2"),
-            html.P("Rotating Machinery Condition Monitoring Platform",
-                   className="text-center text-muted"),
-            html.P("Python 3.14 + Dash/Plotly | Dual-Mode: Real Hardware + Industrial Simulation",
-                   className="text-center text-muted small")
-        ], width=12)
-    ], className="mt-4"),
+def build_home_layout():
+    """Landing page only: choose which model/page to open."""
+    return dbc.Container([
+        dbc.Row([
+            dbc.Col([
+                html.H1("🏭 PRIME-Factory", className="text-center mb-2"),
+                html.P("Rotating Machinery Condition Monitoring Platform",
+                       className="text-center text-muted"),
+                html.P("Python 3.14 + Dash/Plotly | Dual-Mode: Real Hardware + Industrial Simulation",
+                       className="text-center text-muted small")
+            ], width=12)
+        ], className="mt-4"),
 
-    # Mode Selection
-    dbc.Row([
-        dbc.Col([
-            dbc.Card([
-                dbc.CardBody([
-                    html.H3("🔌 Real Hardware Mode", className="card-title"),
-                    html.P("Connect to Arduino Uno via Serial Port (9600 baud)",
-                           className="card-text"),
-                    html.P("Live data from physical prototype (GA25-370 + 4 sensors)",
-                           className="text-muted small"),
-                    dbc.Button("Enter Real Mode",
-                               id="btn-real-mode",
-                               color="primary",
-                               className="w-100 mt-3")
-                ])
-            ], className="mb-4"),
-        ], width=6),
+        dbc.Row([
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H3("🔌 Real Hardware Mode", className="card-title"),
+                        html.P("Live ESP32 → MQTT → Mosquitto → SQLite telemetry",
+                               className="card-text"),
+                        html.P("Arduino prototype: GA25-370 + voltage/current/vibration/speed",
+                               className="text-muted small"),
+                        dcc.Link(
+                            dbc.Button("Enter Real Mode",
+                                       id="btn-real-mode",
+                                       color="primary",
+                                       className="w-100 mt-3"),
+                            href="/real", refresh=False,
+                            style={"display": "block", "textDecoration": "none"},
+                        )
+                    ])
+                ], className="mb-4"),
+            ], width=6),
 
-        dbc.Col([
-            dbc.Card([
-                dbc.CardBody([
-                    html.H3("🏭 Industrial Simulation Mode",
-                            className="card-title"),
-                    html.P("Demonstrate PRIME-Factory value on real scenarios",
-                           className="card-text"),
-                    html.P("Fertilizer & Packaging industries — 9 scenarios",
-                           className="text-muted small"),
-                    dbc.Button("Enter Simulation Mode",
-                               id="btn-sim-mode",
-                               color="success",
-                               className="w-100 mt-3")
-                ])
-            ], className="mb-4"),
-        ], width=6),
-    ], justify="center"),
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H3("🏭 Industrial Simulation Mode",
+                                className="card-title"),
+                        html.P("Demonstrate PRIME-Factory value on real scenarios",
+                               className="card-text"),
+                        html.P("Fertilizer & Packaging industries — 9 scenarios",
+                               className="text-muted small"),
+                        dcc.Link(
+                            dbc.Button("Enter Simulation Mode",
+                                       id="btn-sim-mode",
+                                       color="success",
+                                       className="w-100 mt-3"),
+                            href="/simulation", refresh=False,
+                            style={"display": "block", "textDecoration": "none"},
+                        )
+                    ])
+                ], className="mb-4"),
+            ], width=6),
+        ], justify="center"),
+    ], fluid=True, className="bg-dark text-light")
 
-    # Dynamic Content Area
-    html.Div(id="dynamic-content"),
 
-    # Intervals, Stores & Download (Simulation playback state lives here)
+# Root layout: URL-driven model pages + shared state (survives navigation).
+app.layout = html.Div([
+    dcc.Location(id="url", refresh=False),
+    html.Div(id="page-content"),
+
+    # Intervals, Stores & Download (shared by all pages)
     dcc.Interval(id="interval-real", interval=1000, n_intervals=0),
     dcc.Interval(id="interval-sim-play", interval=1000, n_intervals=0, disabled=True),
     dcc.Store(id="store-sim-data", data={}),
     dcc.Store(id="store-sim-play", data={"index": 0, "playing": False}),
     dcc.Download(id="download-report"),
-
-], fluid=True, className="bg-dark text-light")
+    dcc.Download(id="download-energy-csv"),
+], className="bg-dark text-light")
 
 
 # ================================================================
-# 6) Callbacks — Mode Switching
+# 6) Callbacks — URL-based page routing
 # ================================================================
 @callback(
-    Output("dynamic-content", "children"),
-    [Input("btn-real-mode", "n_clicks"),
-     Input("btn-sim-mode", "n_clicks")],
-    prevent_initial_call=True
+    Output("page-content", "children"),
+    Input("url", "pathname")
 )
-def switch_mode(real_clicks, sim_clicks):
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return ""
-
-    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-
-    if button_id == "btn-real-mode":
+def display_page(pathname):
+    """Render only the requested model page; '/' is the home page."""
+    if pathname == "/real":
         return build_real_mode_layout()
-    elif button_id == "btn-sim-mode":
+    if pathname in ("/simulation", "/sim"):
         return build_sim_mode_layout()
-
-    return ""
+    return build_home_layout()
 
 
 # ================================================================
 # 7) Real Mode Layout
 # ================================================================
 def build_real_mode_layout():
+    shown = {"display": "block"}
+    hidden = {"display": "none"}
+
     return dbc.Container([
         dbc.Row([
             dbc.Col([
                 html.H2("🔌 Real Hardware Monitor"),
-                html.Div(id="serial-status",
-                         children="🔴 Disconnected",
-                         className="badge bg-danger")
+                html.Div([
+                    html.Div(id="serial-status",
+                             children="🔴 OFFLINE",
+                             className="badge bg-danger"),
+                    html.Small(id="data-freshness-hint",
+                               children="No data received yet",
+                               className="d-block text-muted mt-1")
+                ], className="d-inline-block")
             ], width=8),
             dbc.Col([
-                dbc.Button("← Back to Home",
-                           id="btn-back-real",
-                           color="secondary",
-                           className="float-end")
+                dcc.Link(
+                    dbc.Button("← Back to Home",
+                               id="btn-back-real",
+                               color="secondary",
+                               className="float-end"),
+                    href="/", refresh=False,
+                    style={"display": "block", "textDecoration": "none"},
+                )
             ], width=4)
-        ], className="mb-4"),
+        ], className="mb-4 real-page-header"),
 
-        # KPI Cards
-        dbc.Row([
-            dbc.Col(dbc.Card([
-                dbc.CardBody([
+        dcc.Tabs(
+            id="real-tabs",
+            value="real-overview",
+            className="mb-3 real-top-tabs",
+            children=[
+                dcc.Tab(label="📊 Overview", value="real-overview"),
+                dcc.Tab(label="🎛️ Speed Control", value="real-control"),
+                dcc.Tab(label="📈 Live Charts", value="real-charts"),
+                dcc.Tab(label="🧠 Analytics", value="real-analytics"),
+                dcc.Tab(label="⚡ Energy Log", value="real-energy"),
+            ],
+        ),
+
+        html.Div([
+            # KPI Cards — vertically stacked readings
+            html.Div([
+                dbc.Card(dbc.CardBody([
                     html.H6("State", className="card-title"),
-                    html.H3(id="kpi-state", children="IDLE")
-                ])
-            ]), width=2),
-            dbc.Col(dbc.Card([
-                dbc.CardBody([
-                    html.H6("RPM", className="card-title"),
-                    html.H3(id="kpi-rpm", children="0")
-                ])
-            ]), width=2),
-            dbc.Col(dbc.Card([
-                dbc.CardBody([
+                    html.H3(id="kpi-state", children="IDLE",
+                            className="kpi-value")
+                ]), className="reading-card"),
+                dbc.Card(dbc.CardBody([
+                    html.H6("Speed (%)", className="card-title"),
+                    html.H3(id="kpi-rpm", children="0",
+                            className="kpi-value")
+                ]), className="reading-card"),
+                dbc.Card(dbc.CardBody([
                     html.H6("Current (A)", className="card-title"),
-                    html.H3(id="kpi-current", children="0.00")
-                ])
-            ]), width=2),
-            dbc.Col(dbc.Card([
-                dbc.CardBody([
+                    html.H3(id="kpi-current", children="0.00",
+                            className="kpi-value")
+                ]), className="reading-card"),
+                dbc.Card(dbc.CardBody([
                     html.H6("Voltage (V)", className="card-title"),
-                    html.H3(id="kpi-voltage", children="0.0")
-                ])
-            ]), width=2),
-            dbc.Col(dbc.Card([
-                dbc.CardBody([
-                    html.H6("Vibration (g)", className="card-title"),
-                    html.H3(id="kpi-vib", children="0.000")
-                ])
-            ]), width=2),
-            dbc.Col(dbc.Card([
-                dbc.CardBody([
+                    html.H3(id="kpi-voltage", children="0.0",
+                            className="kpi-value")
+                ]), className="reading-card"),
+                dbc.Card(dbc.CardBody([
+                    html.H6("Vibration (m/s²)", className="card-title"),
+                    html.H3(id="kpi-vib", children="0.000",
+                            className="kpi-value")
+                ]), className="reading-card"),
+                dbc.Card(dbc.CardBody([
                     html.H6("Temperature (°C)", className="card-title"),
-                    html.H3(id="kpi-temp", children="0.0")
-                ])
-            ]), width=2),
-        ], className="mb-4"),
+                    html.H3(id="kpi-temp", children="0.0",
+                            className="kpi-value")
+                ]), className="reading-card"),
+            ], className="reading-stack mb-4"),
+        ], id="real-pane-overview", style=shown),
 
-        # Charts
-        dbc.Row([
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H5("Current & Voltage (Last 60s)"),
-                        dcc.Graph(id="chart-current-voltage")
-                    ])
-                ])
-            ], width=6),
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H5("Vibration & Temperature (Last 60s)"),
-                        dcc.Graph(id="chart-vib-temp")
-                    ])
-                ])
-            ], width=6),
-        ], className="mb-4"),
+        html.Div([
+            # Speed Control (LOCAL potentiometer or REMOTE dashboard command)
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+                            dbc.Row([
+                                dbc.Col([
+                                    html.H5("🎛️ Speed Control", className="mb-1"),
+                                    html.Div(id="speed-actual-state",
+                                             children="Hardware: waiting for telemetry",
+                                             className="small text-muted")
+                                ], width=4),
+                                dbc.Col([
+                                    dbc.Label("Control source", size="sm"),
+                                    dbc.RadioItems(
+                                        id="speed-mode",
+                                        options=[
+                                            {"label": "LOCAL (potentiometer)",
+                                             "value": "LOCAL"},
+                                            {"label": "REMOTE (dashboard)",
+                                             "value": "REMOTE"},
+                                        ],
+                                        value="LOCAL",
+                                        inline=True,
+                                    )
+                                ], width=4),
+                                dbc.Col([
+                                    dbc.Label("Preset speed", size="sm"),
+                                    dbc.ButtonGroup([
+                                        dbc.Button("100%", id="speed-preset-100",
+                                                   color="primary", size="sm",
+                                                   disabled=True),
+                                        dbc.Button("80%", id="speed-preset-80",
+                                                   color="primary", size="sm",
+                                                   disabled=True),
+                                        dbc.Button("50%", id="speed-preset-50",
+                                                   color="primary", size="sm",
+                                                   disabled=True),
+                                        dbc.Button("0%", id="speed-preset-0",
+                                                   color="secondary", size="sm",
+                                                   disabled=True),
+                                    ])
+                                ], width=4),
+                            ], className="align-items-end"),
+                            dbc.Row([
+                                dbc.Col([
+                                    dbc.Label("Custom speed (%)", size="sm"),
+                                    dbc.Input(id="speed-custom", type="number",
+                                              min=0, max=100, step=1, value=80,
+                                              disabled=True, size="sm",
+                                              style={"maxWidth": "140px"})
+                                ], width=2),
+                                dbc.Col([
+                                    dbc.Label("\u00a0", size="sm"),
+                                    dbc.Button("Apply", id="btn-speed-apply",
+                                               color="success", size="sm",
+                                               disabled=True)
+                                ], width=2),
+                                dbc.Col([
+                                    dbc.Label("\u00a0", size="sm"),
+                                    html.Div(id="speed-command-status",
+                                             children="Switch to REMOTE to send commands.",
+                                             className="small text-muted mt-1")
+                                ], width=8),
+                            ], className="mt-2 align-items-end"),
+                        ])
+                    ], className="mt-2")
+                ], width=12)
+            ], className="mb-4"),
+        ], id="real-pane-control", style=hidden),
 
-        # MES/EMS/PdM Cards
-        dbc.Row([
-            dbc.Col(dbc.Card([
-                dbc.CardBody([
-                    html.H5("📊 MES Metrics"),
-                    html.P(id="mes-oee", children="OEE: ---%"),
-                    html.P(id="mes-units", children="Units: 0"),
-                    html.P(id="mes-cycle", children="Cycle: ---s")
-                ])
-            ]), width=4),
-            dbc.Col(dbc.Card([
-                dbc.CardBody([
-                    html.H5("⚡ EMS Metrics"),
-                    html.P(id="ems-energy", children="Energy: --- kWh"),
-                    html.P(id="ems-power", children="Power: --- W"),
-                    html.P(id="ems-eff", children="Wh/unit: ---")
-                ])
-            ]), width=4),
-            dbc.Col(dbc.Card([
-                dbc.CardBody([
-                    html.H5("🔧 PdM Metrics"),
-                    html.P(id="pdm-health", children="Health Score: ---"),
-                    html.P(id="pdm-trend", children="Trend: ---"),
-                    html.P(id="pdm-alert", children="Alert Level: ---")
-                ])
-            ]), width=4),
-        ]),
-
-        # Alert Panel
-        dbc.Row([
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H5("🚨 Live Alerts (Rule-Based AI)"),
-                        html.Div(id="alert-panel",
-                                 children="No alerts yet.",
-                                 className="text-muted")
+        html.Div([
+            # Charts
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+                            html.H5("Current & Voltage (Last 60s)"),
+                            dcc.Graph(id="chart-current-voltage",
+                                      responsive=True)
+                        ])
                     ])
-                ])
-            ], width=12)
-        ])
+                ], width=6),
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+                            html.H5("Vibration & Temperature (Last 60s)"),
+                            dcc.Graph(id="chart-vib-temp", responsive=True)
+                        ])
+                    ])
+                ], width=6),
+            ], className="mb-4"),
+        ], id="real-pane-charts", style=hidden),
+
+        html.Div([
+            # MES/EMS/PdM Cards
+            dbc.Row([
+                dbc.Col(dbc.Card([
+                    dbc.CardBody([
+                        html.H5("📊 MES Metrics"),
+                        html.P(id="mes-oee", children="OEE: ---%"),
+                        html.P(id="mes-units", children="Units: 0"),
+                        html.P(id="mes-cycle", children="Cycle: ---s")
+                    ])
+                ]), width=4),
+                dbc.Col(dbc.Card([
+                    dbc.CardBody([
+                        html.H5("⚡ EMS Metrics"),
+                        html.P(id="ems-energy", children="Energy: --- kWh"),
+                        html.P(id="ems-power", children="Power: --- W"),
+                        html.P(id="ems-eff", children="Wh/unit: ---")
+                    ])
+                ]), width=4),
+                dbc.Col(dbc.Card([
+                    dbc.CardBody([
+                        html.H5("🔧 PdM Metrics"),
+                        html.P(id="pdm-health", children="Health Score: ---"),
+                        html.P(id="pdm-trend", children="Trend: ---"),
+                        html.P(id="pdm-alert", children="Alert Level: ---")
+                    ])
+                ]), width=4),
+            ]),
+
+            # Alert Panel
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+                            html.H5("🚨 Live Alerts (Rule-Based AI)"),
+                            html.Div(id="alert-panel",
+                                     children="No alerts yet.",
+                                     className="text-muted")
+                        ])
+                    ])
+                ], width=12)
+            ]),
+        ], id="real-pane-analytics", style=hidden),
+
+        html.Div([
+            # Energy Consumption Log
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+                            html.H5("⚡ Energy Consumption Log"),
+                            dbc.Row([
+                                dbc.Col([
+                                    dbc.Label("Show period", size="sm"),
+                                    dbc.RadioItems(
+                                        id="energy-view",
+                                        options=[
+                                            {"label": "Today", "value": "TODAY"},
+                                            {"label": "This month", "value": "MONTH"},
+                                            {"label": "This year", "value": "YEAR"},
+                                        ],
+                                        value="TODAY",
+                                        inline=True,
+                                    )
+                                ], width=5),
+                                dbc.Col([
+                                    dbc.Label("Energy price (EGP/kWh)", size="sm"),
+                                    dbc.Input(id="energy-tariff", type="number",
+                                              min=0, step=0.01, value=0.0,
+                                              size="sm",
+                                              style={"maxWidth": "140px"}),
+                                    html.Small(id="energy-tariff-hint",
+                                               children="Tariff: 0.00 EGP/kWh",
+                                               className="d-block text-muted")
+                                ], width=3),
+                            ], className="mt-3 align-items-end"),
+
+                            html.Div(id="energy-summary", className="mt-3"),
+
+                            dbc.Row([
+                                dbc.Col([
+                                    dbc.Label("Peak power", size="sm"),
+                                    html.Div(id="energy-peak", children="0.000 W",
+                                             className="fw-bold")
+                                ], width=2),
+                                dbc.Col([
+                                    dbc.Label("Run time", size="sm"),
+                                    html.Div(id="energy-runtime", children="0.0000 h",
+                                             className="fw-bold")
+                                ], width=2),
+                                dbc.Col([
+                                    dbc.Label("Duty cycle", size="sm"),
+                                    html.Div(id="energy-duty", children="0.00 %",
+                                             className="fw-bold")
+                                ], width=2),
+                            ], className="mt-2 align-items-end"),
+
+                            dcc.Graph(id="energy-chart",
+                                      style={"height": "300px"},
+                                      className="mt-3",
+                                      responsive=True),
+
+                            dbc.Row([
+                                dbc.Col([
+                                    dbc.Button("📥 Export CSV", id="btn-export-energy",
+                                               color="success", size="sm",
+                                               className="me-2"),
+                                    dbc.Button("🖨️ Print / Save PDF",
+                                               id="btn-print-energy",
+                                               color="secondary", size="sm"),
+                                    html.Div(id="print-energy-out",
+                                             style={"display": "none"})
+                                ], width=12)
+                            ], className="mt-2"),
+
+                            html.Hr(),
+                            html.H6(id="energy-table-title",
+                                    children="Today by hour"),
+                            dash_table.DataTable(
+                                id="energy-log-table",
+                                columns=[
+                                    {"name": "Period", "id": "period"},
+                                    {"name": "Energy (kWh)", "id": "energy_kwh"},
+                                    {"name": "Energy (Wh)", "id": "energy_wh"},
+                                    {"name": "Samples", "id": "samples"},
+                                    {"name": "Cost", "id": "cost"},
+                                ],
+                                data=[],
+                                page_size=10,
+                                style_table={"overflowX": "auto"},
+                                style_cell={"backgroundColor": "#212529",
+                                            "color": "#f8f9fa",
+                                            "textAlign": "left",
+                                            "padding": "6px"},
+                                style_header={"backgroundColor": "#343a40",
+                                              "fontWeight": "bold"},
+                            )
+                        ])
+                    ], className="energy-report-card mt-4")
+                ], width=12)
+            ])
+        ], id="real-pane-energy", style=hidden),
     ], fluid=True)
 
 
@@ -377,6 +623,12 @@ def build_sim_mode_layout():
             ], width=5, className="pt-2"),
             dbc.Col([
                 html.Div([
+                    dcc.Link(
+                        dbc.Button("← Home", color="secondary", size="sm",
+                                   className="me-2"),
+                        href="/", refresh=False,
+                        style={"textDecoration": "none"},
+                    ),
                     dbc.Switch(id="mute-switch", label="🔇 Mute", value=False,
                                className="d-inline-block me-2"),
                     dbc.Button("📥 Export CSV", id="btn-export-report",
@@ -503,6 +755,49 @@ def build_sim_mode_layout():
 # ================================================================
 # 9) Real Mode Callbacks
 # ================================================================
+def _mqtt_connection_badge():
+    """Badge reflects device connection, not telemetry freshness."""
+    if not mqtt_subscriber.is_connected:
+        return "🔴 OFFLINE", "badge bg-danger"
+    state = str(mqtt_subscriber.mqtt_status or "").strip().upper()
+    if state == "ONLINE":
+        return "🟢 ONLINE", "badge bg-success"
+    if state == "OFFLINE":
+        return "🔴 OFFLINE", "badge bg-danger"
+    return "🟡 CONNECTING", "badge bg-warning text-dark"
+
+
+def _data_freshness_hint():
+    """Return a hint and colour explaining the age of the displayed reading."""
+    latest = mqtt_subscriber.get_latest()
+    if latest is None:
+        return "No data received yet", "d-block text-muted mt-1"
+    age = (datetime.now() - latest.timestamp).total_seconds()
+    if age < 0 or age <= mqtt_subscriber.LIVE_TIMEOUT_SEC:
+        return "Live data • just now", "d-block text-success mt-1"
+    return (f"Last reading {int(age)}s ago • waiting for new data",
+            "d-block text-warning mt-1")
+
+
+@callback(
+    [Output("real-pane-overview", "style"),
+     Output("real-pane-control", "style"),
+     Output("real-pane-charts", "style"),
+     Output("real-pane-analytics", "style"),
+     Output("real-pane-energy", "style")],
+    Input("real-tabs", "value")
+)
+def switch_real_tab(active):
+    """Show only the selected Real Mode page; all components stay mounted."""
+    shown = {"display": "block"}
+    hidden = {"display": "none"}
+    order = ["real-overview", "real-control", "real-charts",
+             "real-analytics", "real-energy"]
+    active_index = order.index(active) if active in order else 0
+    return [shown if i == active_index else hidden
+            for i in range(len(order))]
+
+
 @callback(
     [Output("kpi-state", "children"),
      Output("kpi-rpm", "children"),
@@ -511,45 +806,133 @@ def build_sim_mode_layout():
      Output("kpi-vib", "children"),
      Output("kpi-temp", "children"),
      Output("serial-status", "children"),
-     Output("serial-status", "className")],
+     Output("serial-status", "className"),
+     Output("data-freshness-hint", "children"),
+     Output("data-freshness-hint", "className")],
+    Input("url", "pathname"),
     Input("interval-real", "n_intervals")
 )
-def update_real_kpis(n):
-    """Update Real Mode KPIs every second."""
-    reading = serial_reader.get_latest()
+def update_real_kpis(pathname, n):
+    """Show the newest reading; badge and hint tell whether it is still live."""
+    if pathname != "/real":
+        raise PreventUpdate
 
-    if reading is None:
+    global last_buffered_timestamp
+
+    status_text, status_class = _mqtt_connection_badge()
+    freshness_hint, freshness_class = _data_freshness_hint()
+    fresh = mqtt_subscriber.get_latest_fresh()
+    display = mqtt_subscriber.get_latest()
+
+    # Only new readings are buffered/cached and fed to the calculators.
+    if fresh is not None and last_buffered_timestamp != fresh.timestamp:
+        real_data_buffer.append(asdict(fresh))
+        try:
+            save_reading_to_cache(fresh)
+        except Exception as e:
+            print(f"[RealMode] Cache save error: {e}")
+        last_buffered_timestamp = fresh.timestamp
+        mes_calc.update(fresh)
+        ems_calc.update(fresh)
+        pdm_calc.update(fresh)
+        ai_calc.check_anomaly(fresh)
+
+    if display is None:
         return ("IDLE", "0", "0.00", "0.0", "0.000", "0.0",
-                "🔴 Disconnected", "badge bg-danger")
+                status_text, status_class, freshness_hint, freshness_class)
 
-    status_class = "badge bg-success" if serial_reader.is_connected else "badge bg-danger"
-    status_text = "🟢 Connected" if serial_reader.is_connected else "🔴 Disconnected"
-
-    # Save to in-memory buffer + SQLite cache
-    real_data_buffer.append(asdict(reading))
-    try:
-        save_reading_to_cache(reading)
-    except Exception as e:
-        print(f"[RealMode] Cache save error: {e}")
-
-    # Update calculators
-    mes_metrics = mes_calc.update(reading)
-    ems_metrics = ems_calc.update(reading)
-    pdm_metrics = pdm_calc.update(reading)
-    ai_result = ai_calc.check_anomaly(reading)
-
-    # Store latest calculator results in a hidden div for MES/EMS/PdM callback
-    # We return them via separate outputs using a shared store pattern below
-    # For simplicity, KPI callback returns basic KPIs; MES/EMS/PdM handled separately
-
-    return (reading.state,
-            f"{reading.rpm:.1f}",
-            f"{reading.current_a:.3f}",
-            f"{reading.voltage_v:.1f}",
-            f"{reading.vib_rms:.3f}",
-            f"{reading.temp_c:.1f}",
+    return (display.state,
+            f"{display.speed_pct:.0f}",
+            f"{display.current_a:.3f}",
+            f"{display.voltage_v:.1f}",
+            f"{display.vibration_ms2:.3f}",
+            f"{display.temp_c:.1f}",
             status_text,
-            status_class)
+            status_class,
+            freshness_hint,
+            freshness_class)
+
+
+@callback(
+    Output("speed-mode", "value"),
+    Input("url", "pathname"),
+    prevent_initial_call=False,
+)
+def sync_speed_mode_from_hardware(pathname):
+    """Adopt the hardware mode once when the Real page is first opened."""
+    if pathname != "/real":
+        raise PreventUpdate
+    latest = mqtt_subscriber.get_latest()
+    if latest is None:
+        raise PreventUpdate
+    return "REMOTE" if latest.control_mode == "REMOTE" else "LOCAL"
+
+
+@callback(
+    [Output("speed-preset-100", "disabled"),
+     Output("speed-preset-80", "disabled"),
+     Output("speed-preset-50", "disabled"),
+     Output("speed-preset-0", "disabled"),
+     Output("speed-custom", "disabled"),
+     Output("btn-speed-apply", "disabled"),
+     Output("speed-actual-state", "children")],
+    Input("speed-mode", "value"),
+    Input("interval-real", "n_intervals"),
+    Input("url", "pathname")
+)
+def update_speed_control_ui(mode, n, pathname):
+    """Remote mode enables the controls; LOCAL leaves the potentiometer in charge."""
+    if pathname != "/real":
+        raise PreventUpdate
+
+    remote = mode == "REMOTE"
+    latest = mqtt_subscriber.get_latest()
+    if latest is None:
+        actual = "Hardware: waiting for telemetry"
+    else:
+        actual = (f"Hardware: {latest.control_mode} • "
+                  f"{latest.speed_pct:.0f}%")
+    return [not remote] * 6 + [actual]
+
+
+@callback(
+    Output("speed-command-status", "children"),
+    Input("speed-mode", "value"),
+    Input("btn-speed-apply", "n_clicks"),
+    Input("speed-preset-100", "n_clicks"),
+    Input("speed-preset-80", "n_clicks"),
+    Input("speed-preset-50", "n_clicks"),
+    Input("speed-preset-0", "n_clicks"),
+    State("speed-custom", "value"),
+    State("url", "pathname"),
+    prevent_initial_call=True,
+)
+def send_speed_command(mode, n_apply, n100, n80, n50, n0,
+                       custom_speed, pathname):
+    """Publish MODE:L|R,SPD:0..100 to prime-factory/control (QoS 1, retained)."""
+    if pathname != "/real":
+        raise PreventUpdate
+
+    trigger = dash.ctx.triggered_id
+    if trigger == "speed-mode":
+        speed = mqtt_subscriber.get_control_state()["speed_pct"]
+    elif trigger == "speed-preset-100":
+        speed = 100
+    elif trigger == "speed-preset-80":
+        speed = 80
+    elif trigger == "speed-preset-50":
+        speed = 50
+    elif trigger == "speed-preset-0":
+        speed = 0
+    elif trigger == "btn-speed-apply":
+        speed = custom_speed if custom_speed is not None else 0
+    else:
+        raise PreventUpdate
+
+    ok = mqtt_subscriber.publish_control(mode, speed)
+    if not ok:
+        return f"MQTT offline — could not send {mode} • {int(speed)}%"
+    return f"Sent: {mode} • {int(speed)}%"
 
 
 @callback(
@@ -564,11 +947,15 @@ def update_real_kpis(n):
      Output("pdm-alert", "children"),
      Output("alert-panel", "children"),
      Output("alert-panel", "className")],
+    Input("url", "pathname"),
     Input("interval-real", "n_intervals")
 )
-def update_real_metrics(n):
-    """Update MES/EMS/PdM/AI metrics every second."""
-    reading = serial_reader.get_latest()
+def update_real_metrics(pathname, n):
+    """Update MES/EMS/PdM/AI metrics from live readings only."""
+    if pathname != "/real":
+        raise PreventUpdate
+
+    reading = mqtt_subscriber.get_latest_fresh()
 
     if reading is None:
         return ("OEE: ---%", "Units: 0", "Cycle: ---s",
@@ -611,20 +998,36 @@ def update_real_metrics(n):
 @callback(
     [Output("chart-current-voltage", "figure"),
      Output("chart-vib-temp", "figure")],
+    Input("url", "pathname"),
     Input("interval-real", "n_intervals")
 )
-def update_real_charts(n):
-    """Update Real Mode charts from in-memory buffer + SQLite cache."""
-    # Use in-memory buffer first, fallback to cache
-    data = list(real_data_buffer)
-    if len(data) == 0:
-        cached = load_cache_readings()
-        if cached:
-            data = cached
+def update_real_charts(pathname, n):
+    """Update Real Mode charts from the last 60s of LIVE readings only."""
+    if pathname != "/real":
+        raise PreventUpdate
 
-    if len(data) == 0:
-        empty_fig = empty_chart("Waiting for serial data...")
-        return empty_fig, empty_fig
+    now = datetime.now()
+    data = []
+    for d in real_data_buffer:
+        ts = d.get("timestamp")
+        if isinstance(ts, datetime):
+            t = ts
+        else:
+            try:
+                t = datetime.fromisoformat(str(ts))
+            except ValueError:
+                continue
+        age = (now - t).total_seconds()
+        if 0 <= age <= 60:
+            data.append(d)
+
+    latest = mqtt_subscriber.get_latest_fresh()
+    if not data:
+        if latest is not None:
+            data = [asdict(latest)]
+        else:
+            empty_fig = empty_chart("Waiting for live MQTT data...")
+            return empty_fig, empty_fig
 
     # Current & Voltage chart
     fig1 = go.Figure()
@@ -654,9 +1057,9 @@ def update_real_charts(n):
     fig2 = go.Figure()
     fig2.add_trace(go.Scatter(
         x=[d.get("timestamp", "") for d in data],
-        y=[d.get("vibration_rms_g", d.get("vib_rms", 0)) for d in data],
+        y=[d.get("vibration_ms2", d.get("vib_rms", 0)) for d in data],
         mode='lines',
-        name='Vibration (g)',
+        name='Vibration (m/s²)',
         line=dict(color='red')
     ))
     fig2.add_trace(go.Scatter(
@@ -669,12 +1072,242 @@ def update_real_charts(n):
     ))
     fig2.update_layout(
         title="Vibration & Temperature (Last 60s)",
-        yaxis=dict(title="Vibration (g)"),
+        yaxis=dict(title="Vibration (m/s²)"),
         yaxis2=dict(title="Temperature (°C)", overlaying="y", side="right"),
         template="plotly_dark"
     )
 
-    return fig1, fig2
+    return apply_plot_style(fig1), apply_plot_style(fig2)
+
+
+def _energy_tariff(value):
+    """Normalize the editable tariff field; never allow a negative price."""
+    try:
+        return max(0.0, float(value if value is not None else 0.0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
+ENERGY_VIEWS = {
+    "TODAY": {
+        "bucket_key": "today_hourly",
+        "total_key": "today_wh",
+        "type": "HOUR",
+        "title": "Today energy",
+        "table_title": "Today by hour",
+        "chart_title": "Energy during today (by hour)",
+        "x_title": "Hour",
+    },
+    "MONTH": {
+        "bucket_key": "month_daily",
+        "total_key": "month_wh",
+        "type": "DAY",
+        "title": "This month energy",
+        "table_title": "This month by day",
+        "chart_title": "Energy during this month (by day)",
+        "x_title": "Day",
+    },
+    "YEAR": {
+        "bucket_key": "year_monthly",
+        "total_key": "year_wh",
+        "type": "MONTH",
+        "title": "This year energy",
+        "table_title": "This year by month",
+        "chart_title": "Energy during this year (by month)",
+        "x_title": "Month",
+    },
+}
+
+
+def _energy_view(view):
+    """Resolve a view id, falling back to Today for unknown values."""
+    return ENERGY_VIEWS.get(view, ENERGY_VIEWS["TODAY"])
+
+
+def _energy_view_rows(summary, view, tariff):
+    """Build rows for the selected period only — shared by table and CSV."""
+    cfg = _energy_view(view)
+    rows = []
+    for item in summary[cfg["bucket_key"]]:
+        cost = item["energy_kwh"] * tariff
+        rows.append({
+            "type": cfg["type"],
+            "label": item["label"],
+            "energy_kwh": item["energy_kwh"],
+            "energy_wh": item["energy_wh"],
+            "samples": item["samples"],
+            "cost": cost,
+            "display_kwh": f"{item['energy_kwh']:.6f}",
+            "display_wh": f"{item['energy_wh']:.3f}",
+            "display_cost": f"{cost:.4f} EGP",
+        })
+    return rows
+
+
+def _energy_summary_card(summary, view, tariff):
+    """Show only the selected period's total, cost and sample count."""
+    cfg = _energy_view(view)
+    wh = summary[cfg["total_key"]]
+    rows = _energy_view_rows(summary, view, tariff)
+    samples = sum(row["samples"] for row in rows)
+    active = sum(1 for row in rows if row["samples"] > 0)
+
+    def tile(label, value, hint, color):
+        return dbc.Col(dbc.Card(
+            dbc.CardBody([
+                html.H6(label, className="card-title"),
+                html.H4(value, className="mb-1"),
+                html.Small(hint, className="d-block opacity-75"),
+            ]),
+            color=color, inverse=True, className="h-100",
+        ), width=4)
+
+    return dbc.Row([
+        tile(cfg["title"], f"{wh / 1000.0:.6f} kWh",
+             f"{wh:.3f} Wh", "primary"),
+        tile("Cost", f"{wh / 1000.0 * tariff:.4f} EGP",
+             f"Tariff: {tariff:.2f} EGP/kWh", "success"),
+        tile("Logged intervals", str(samples),
+             f"{active} active / {len(rows)} shown", "info"),
+    ], className="g-2")
+
+
+def _energy_chart(summary, view, tariff):
+    """Bar chart of energy inside the selected day, month or year."""
+    cfg = _energy_view(view)
+    items = summary[cfg["bucket_key"]]
+    if not items:
+        return empty_chart("No energy data yet...")
+
+    labels = [item["label"] for item in items]
+    wh = [item["energy_wh"] for item in items]
+    custom = [(item["energy_kwh"], item["energy_kwh"] * tariff,
+               item["samples"]) for item in items]
+
+    fig = go.Figure(go.Bar(
+        x=labels,
+        y=wh,
+        customdata=custom,
+        marker_color="#ffb703",
+        hovertemplate=(
+            "<b>%{x}</b><br>Energy: %{y:.3f} Wh<br>"
+            "kWh: %{customdata[0]:.6f}<br>"
+            "Cost: %{customdata[1]:.4f} EGP<br>"
+            "Samples: %{customdata[2]}<extra></extra>"
+        ),
+    ))
+    fig.update_layout(
+        title=cfg["chart_title"],
+        xaxis_title=cfg["x_title"],
+        yaxis_title="Energy (Wh)",
+        template="plotly_dark",
+        margin=dict(l=50, r=20, t=50, b=40),
+        height=300,
+    )
+    fig.update_xaxes(type="category")
+    return apply_plot_style(fig)
+
+
+@callback(
+    [Output("energy-summary", "children"),
+     Output("energy-tariff-hint", "children"),
+     Output("energy-peak", "children"),
+     Output("energy-runtime", "children"),
+     Output("energy-duty", "children"),
+     Output("energy-table-title", "children"),
+     Output("energy-log-table", "data"),
+     Output("energy-chart", "figure")],
+    Input("url", "pathname"),
+    Input("interval-real", "n_intervals"),
+    Input("energy-view", "value"),
+    Input("energy-tariff", "value")
+)
+def update_energy_log(pathname, n, view, tariff_value):
+    """Refresh the selected energy period, stats, chart and table."""
+    if pathname != "/real":
+        raise PreventUpdate
+
+    tariff = _energy_tariff(tariff_value)
+    cfg = _energy_view(view)
+    try:
+        summary = mqtt_subscriber.get_energy_summary()
+    except sqlite3.Error as exc:
+        print(f"[EnergyLog] {exc}")
+        empty = empty_chart("Energy data unavailable")
+        return (html.Div("Energy data unavailable", className="text-danger mt-3"),
+                f"Tariff: {tariff:.2f} EGP/kWh",
+                "0.000 W", "0.0000 h", "0.00 %",
+                cfg["table_title"], [], empty)
+
+    rows = _energy_view_rows(summary, view, tariff)
+    table_rows = [{
+        "period": f"{row['type']} {row['label']}",
+        "energy_kwh": row["display_kwh"],
+        "energy_wh": row["display_wh"],
+        "samples": row["samples"],
+        "cost": row["display_cost"],
+    } for row in rows]
+
+    return (
+        _energy_summary_card(summary, view, tariff),
+        f"Tariff: {tariff:.2f} EGP/kWh",
+        f"{summary['peak_power_w']:.3f} W",
+        f"{summary['runtime_hours']:.4f} h",
+        f"{summary['duty_pct']:.2f} %",
+        cfg["table_title"],
+        table_rows,
+        _energy_chart(summary, view, tariff),
+    )
+
+
+@callback(
+    Output("download-energy-csv", "data"),
+    Input("btn-export-energy", "n_clicks"),
+    State("energy-view", "value"),
+    State("energy-tariff", "value"),
+    State("url", "pathname"),
+    prevent_initial_call=True,
+)
+def export_energy_csv(n_clicks, view, tariff_value, pathname):
+    """Export the same selected-period breakdown shown in the table."""
+    if pathname != "/real" or not n_clicks:
+        raise PreventUpdate
+
+    tariff = _energy_tariff(tariff_value)
+    cfg = _energy_view(view)
+    try:
+        summary = mqtt_subscriber.get_energy_summary()
+    except sqlite3.Error as exc:
+        print(f"[EnergyCSV] {exc}")
+        raise PreventUpdate
+
+    out = io.StringIO()
+    writer = csv.writer(out)
+    writer.writerow(["Type", "Period", "Energy (kWh)", "Energy (Wh)",
+                     "Samples", f"Cost ({tariff:.2f} EGP/kWh)"])
+    for row in _energy_view_rows(summary, view, tariff):
+        writer.writerow([
+            row["type"], row["label"],
+            f"{row['energy_kwh']:.6f}", f"{row['energy_wh']:.3f}",
+            row["samples"], f"{row['cost']:.4f}",
+        ])
+
+    filename = (f"energy_report_{view.lower()}_"
+                + datetime.now().strftime("%Y%m%d_%H%M") + ".csv")
+    return dcc.send_string(out.getvalue(), filename=filename)
+
+
+clientside_callback(
+    """
+    function(n) {
+        if (n) { window.print(); }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output("print-energy-out", "children"),
+    Input("btn-print-energy", "n_clicks"),
+    prevent_initial_call=True,
+)
 
 
 # ================================================================
@@ -1341,7 +1974,7 @@ def build_param_figure(window, keys, title, y_title, color="#00b4d8",
         showlegend=False,
         uirevision="keep",
     )
-    return fig
+    return apply_plot_style(fig)
 
 
 def build_machine_viz(status, machine_name, fault_location, phase):
@@ -1480,6 +2113,7 @@ def build_comparison_ui(report):
     cost_fig.update_layout(title="💰 Total Cost Comparison", template="plotly_dark",
                            margin=dict(l=50, r=20, t=45, b=30),
                            yaxis_title="EGP")
+    apply_plot_style(cost_fig)
 
     cats = ["Downtime", "Energy", "Scrap", "Repair"]
     breakdown = go.Figure([
@@ -1496,6 +2130,7 @@ def build_comparison_ui(report):
                             template="plotly_dark",
                             margin=dict(l=50, r=20, t=45, b=30),
                             yaxis_title="EGP", legend=dict(orientation="h"))
+    apply_plot_style(breakdown)
 
     timeline = go.Figure(go.Bar(
         x=[w["detection_time_min"], p["detection_time_min"]],
@@ -1509,6 +2144,7 @@ def build_comparison_ui(report):
                            template="plotly_dark",
                            margin=dict(l=80, r=40, t=45, b=30),
                            xaxis_title="minutes")
+    apply_plot_style(timeline)
 
     return dbc.Card(dbc.CardBody([
         html.H3("📊 Comparison Report", className="mb-1"),
@@ -1562,4 +2198,6 @@ if __name__ == "__main__":
     print("PRIME-Factory Dashboard v1.0")
     print("Opening http://127.0.0.1:8050")
     print("=" * 60)
-    app.run(debug=True, host="0.0.0.0", port=8050)
+    # debug/reloader must stay off: a second process would create a second
+    # MQTT client with the same id and keep disconnecting the dashboard.
+    app.run(debug=False, host="0.0.0.0", port=8050, use_reloader=False)

@@ -3,17 +3,34 @@ PRAGMA synchronous = NORMAL;
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS sensor_readings (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    timestamp   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    device_id   TEXT NOT NULL DEFAULT 'esp32_station',
-    weight_g    REAL,
-    current_a   REAL,
-    temp_c      REAL,
-    status      TEXT
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    device_id      TEXT NOT NULL DEFAULT 'esp32_station',
+    weight_g       REAL,
+    current_a      REAL,
+    temp_c         REAL,
+    status         TEXT,
+    voltage_v      REAL,
+    vibration_ms2  REAL,
+    speed_pct      INTEGER,
+    uptime_ms      INTEGER
 );
 
 CREATE INDEX IF NOT EXISTS idx_readings_device_time ON sensor_readings(device_id, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_readings_status ON sensor_readings(status, timestamp DESC);
+
+-- Energy consumed between two consecutive readings: power_w * dt / 3600.
+CREATE TABLE IF NOT EXISTS energy_log (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    device_id        TEXT NOT NULL DEFAULT 'esp32_station',
+    interval_seconds REAL NOT NULL,
+    power_w          REAL NOT NULL,
+    energy_wh        REAL NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_energy_time ON energy_log(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_energy_device_time ON energy_log(device_id, timestamp DESC);
 
 CREATE TABLE IF NOT EXISTS production_units (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,

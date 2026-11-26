@@ -4,3 +4,4 @@ plotly==5.24.1
 pandas>=3.0.0
 numpy>=2.0.0
 pyserial==3.5
+paho-mqtt>=2.1.0

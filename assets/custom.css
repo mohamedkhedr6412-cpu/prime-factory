@@ -93,3 +93,303 @@
   background-color: #1d2733;
   border-color: #2c3a4a;
 }
+
+/* Real Mode: top navigation stays visible while scrolling */
+.real-page-header {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  padding: 0.75rem 0;
+  background: #161d26;
+  border-bottom: 1px solid #263241;
+}
+
+.real-top-tabs {
+  position: sticky;
+  top: 78px;
+  z-index: 1029;
+  padding: 0.25rem 0;
+  background: #161d26;
+  border-bottom: 1px solid #263241;
+}
+
+/* ============================================================
+   Professional palette — calm slate + teal, easy on the eyes
+   ============================================================ */
+:root {
+  --pf-bg: #0f172a;
+  --pf-surface: #1e293b;
+  --pf-surface-alt: #273449;
+  --pf-border: #334155;
+  --pf-text: #e2e8f0;
+  --pf-muted: #94a3b8;
+  --pf-primary: #38bdf8;
+  --pf-success: #34d399;
+  --pf-warning: #fbbf24;
+  --pf-danger: #f87171;
+  --pf-info: #22d3ee;
+}
+
+html,
+body {
+  background-color: var(--pf-bg) !important;
+  color: var(--pf-text) !important;
+  font-family: "Segoe UI", Inter, Arial, sans-serif !important;
+}
+
+.bg-dark,
+.container-fluid.bg-dark {
+  background-color: var(--pf-bg) !important;
+}
+
+.text-light { color: var(--pf-text) !important; }
+.text-muted,
+small.text-muted { color: var(--pf-muted) !important; }
+.text-danger { color: var(--pf-danger) !important; }
+.text-success { color: var(--pf-success) !important; }
+.text-warning { color: var(--pf-warning) !important; }
+.text-info { color: var(--pf-info) !important; }
+
+.card {
+  background-color: var(--pf-surface) !important;
+  border: 1px solid var(--pf-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18) !important;
+}
+
+.card-header,
+.card-footer {
+  background-color: var(--pf-surface-alt) !important;
+  border-color: var(--pf-border) !important;
+}
+
+.kpi-card {
+  background-color: var(--pf-surface) !important;
+  border-color: var(--pf-border) !important;
+}
+
+/* Buttons: softer, consistent colours with readable contrast */
+.btn {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+}
+
+.btn-primary {
+  background-color: var(--pf-primary) !important;
+  border-color: var(--pf-primary) !important;
+  color: #082f49 !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #7dd3fc !important;
+  border-color: #7dd3fc !important;
+  color: #082f49 !important;
+}
+
+.btn-success {
+  background-color: var(--pf-success) !important;
+  border-color: var(--pf-success) !important;
+  color: #052e24 !important;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+  background-color: #6ee7b7 !important;
+  border-color: #6ee7b7 !important;
+  color: #052e24 !important;
+}
+
+.btn-secondary {
+  background-color: var(--pf-surface-alt) !important;
+  border-color: var(--pf-border) !important;
+  color: var(--pf-text) !important;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background-color: #34445c !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+.btn-info {
+  background-color: var(--pf-info) !important;
+  border-color: var(--pf-info) !important;
+  color: #083344 !important;
+}
+
+.btn-warning {
+  background-color: var(--pf-warning) !important;
+  border-color: var(--pf-warning) !important;
+  color: #3b2500 !important;
+}
+
+.btn-danger {
+  background-color: var(--pf-danger) !important;
+  border-color: var(--pf-danger) !important;
+  color: #450a0a !important;
+}
+
+/* Status badges */
+.badge.bg-danger {
+  background-color: #7f1d1d !important;
+  color: #fecaca !important;
+}
+
+.badge.bg-success {
+  background-color: #065f46 !important;
+  color: #a7f3d0 !important;
+}
+
+.badge.bg-warning {
+  background-color: #78350f !important;
+  color: #fde68a !important;
+}
+
+/* Top navigation */
+.dash-tabs {
+  border-bottom: 1px solid var(--pf-border) !important;
+}
+
+.tab {
+  color: var(--pf-muted) !important;
+  border-bottom: 2px solid transparent !important;
+  padding: 0.55rem 0.9rem !important;
+  font-weight: 500 !important;
+}
+
+.tab:hover { color: var(--pf-text) !important; }
+
+.tab.tab--selected {
+  color: var(--pf-primary) !important;
+  border-bottom-color: var(--pf-primary) !important;
+  background-color: transparent !important;
+}
+
+.nav-tabs .nav-link {
+  color: var(--pf-muted) !important;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--pf-primary) !important;
+  background-color: var(--pf-surface-alt) !important;
+  border-color: var(--pf-border) !important;
+}
+
+/* Inputs and dropdowns */
+.form-control,
+.form-select,
+.Select-control,
+.Select-menu-outer {
+  background-color: var(--pf-surface-alt) !important;
+  color: var(--pf-text) !important;
+  border-color: var(--pf-border) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--pf-surface-alt) !important;
+  color: var(--pf-text) !important;
+  border-color: var(--pf-primary) !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.22) !important;
+}
+
+.progress-bar.bg-success {
+  background-color: var(--pf-success) !important;
+}
+
+.pf-toast {
+  background-color: var(--pf-danger) !important;
+  border-left-color: var(--pf-warning) !important;
+}
+
+/* Vertical reading stack for live telemetry values */
+.reading-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  max-width: 520px;
+}
+
+.reading-card {
+  border-left: 3px solid var(--pf-primary) !important;
+  border-radius: 10px !important;
+}
+
+.reading-card:nth-child(2) { border-left-color: var(--pf-success) !important; }
+.reading-card:nth-child(3) { border-left-color: var(--pf-info) !important; }
+.reading-card:nth-child(4) { border-left-color: var(--pf-warning) !important; }
+.reading-card:nth-child(5) { border-left-color: var(--pf-danger) !important; }
+.reading-card:nth-child(6) { border-left-color: var(--pf-muted) !important; }
+
+.reading-card .card-body {
+  padding: 0.55rem 0.9rem !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.reading-card .card-title {
+  margin-bottom: 0 !important;
+  font-size: 0.72rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pf-muted) !important;
+}
+
+.reading-card .kpi-value {
+  margin-bottom: 0 !important;
+  font-size: 1.55rem !important;
+  line-height: 1.05 !important;
+  color: var(--pf-text) !important;
+}
+
+/* Subtle, comfortable scrollbars */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--pf-bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--pf-border);
+  border-radius: 6px;
+}
+
+/* Print / Save as PDF: show only the energy report card */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .energy-report-card,
+  .energy-report-card * {
+    visibility: visible !important;
+  }
+
+  .energy-report-card {
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+  }
+
+  .energy-report-card h1,
+  .energy-report-card h4,
+  .energy-report-card h5,
+  .energy-report-card h6,
+  .energy-report-card .fw-bold {
+    color: #000000 !important;
+  }
+
+  .energy-report-card button,
+  .energy-report-card input,
+  .energy-report-card select,
+  .energy-report-card .dash-table-container .previous-next-container {
+    display: none !important;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}
