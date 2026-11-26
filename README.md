@@ -46,6 +46,18 @@ To stop the dashboard later, close the minimized **PRIME-Factory Dashboard** con
 
 ---
 
+## Sharing with the supervisor and team (read-only)
+
+The full page stays at `/real` and keeps every control. Share this link instead:
+
+```text
+http://<your-address>:8050/real?view=readonly
+```
+
+A read-only link hides the **Speed Control** tab, disables every speed input, and the server rejects any command coming from that link. Monitoring, charts, analytics and the energy log remain fully visible. Use a tunnel (Cloudflare Quick Tunnel, Tailscale Funnel or ngrok) to give the team a public HTTPS link; the dashboard itself binds `0.0.0.0:8050` and only needs outbound access for the tunnel. Never expose the MQTT broker port `1883` publicly.
+
+---
+
 ## Tech Stack (Python 3.14)
 
 | Component | Version | Source |

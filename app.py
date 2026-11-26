@@ -23,7 +23,7 @@ from datetime import datetime, timedelta
 from dataclasses import asdict
 from pathlib import Path
 from collections import deque
-from urllib.parse import quote
+from urllib.parse import parse_qs, quote, urlparse
 
 from backend.machine_profiles import MACHINE_PROFILES
 from backend.financial_calculator import FinancialCalculator
@@ -75,6 +75,20 @@ def apply_plot_style(fig):
     fig.update_yaxes(gridcolor=COLORS["border"],
                      zerolinecolor=COLORS["border"])
     return fig
+
+
+def is_read_only(search):
+    """Shared links with ?view=readonly can watch but never command hardware.
+
+    The full-control page stays at /real. Only visitors who open a link with
+    ``view=readonly`` are limited to monitoring, so the supervisor and team can
+    see the readings without being able to change motor speed.
+    """
+    try:
+        values = parse_qs(urlparse(search or "").query).get("view", [])
+        return bool(values) and values[0].strip().lower() == "readonly"
+    except Exception:
+        return False
 
 
 # ================================================================
@@ -307,7 +321,8 @@ def build_real_mode_layout():
             className="mb-3 real-top-tabs",
             children=[
                 dcc.Tab(label="📊 Overview", value="real-overview"),
-                dcc.Tab(label="🎛️ Speed Control", value="real-control"),
+                dcc.Tab(label="🎛️ Speed Control", value="real-control",
+                        id="real-tab-control"),
                 dcc.Tab(label="📈 Live Charts", value="real-charts"),
                 dcc.Tab(label="🧠 Analytics", value="real-analytics"),
                 dcc.Tab(label="⚡ Energy Log", value="real-energy"),
@@ -784,18 +799,25 @@ def _data_freshness_hint():
      Output("real-pane-control", "style"),
      Output("real-pane-charts", "style"),
      Output("real-pane-analytics", "style"),
-     Output("real-pane-energy", "style")],
-    Input("real-tabs", "value")
+     Output("real-pane-energy", "style"),
+     Output("real-tab-control", "style")],
+    Input("real-tabs", "value"),
+    Input("url", "search")
 )
-def switch_real_tab(active):
-    """Show only the selected Real Mode page; all components stay mounted."""
+def switch_real_tab(active, search):
+    """Show only the selected pane; read-only links hide the control tab."""
     shown = {"display": "block"}
     hidden = {"display": "none"}
     order = ["real-overview", "real-control", "real-charts",
              "real-analytics", "real-energy"]
+    read_only = is_read_only(search)
+    if read_only and active == "real-control":
+        active = "real-overview"
     active_index = order.index(active) if active in order else 0
-    return [shown if i == active_index else hidden
-            for i in range(len(order))]
+    result = [shown if i == active_index else hidden
+              for i in range(len(order))]
+    result.append(hidden if read_only else shown)
+    return result
 
 
 @callback(
@@ -878,15 +900,20 @@ def sync_speed_mode_from_hardware(pathname):
      Output("speed-actual-state", "children")],
     Input("speed-mode", "value"),
     Input("interval-real", "n_intervals"),
-    Input("url", "pathname")
+    Input("url", "pathname"),
+    Input("url", "search")
 )
-def update_speed_control_ui(mode, n, pathname):
-    """Remote mode enables the controls; LOCAL leaves the potentiometer in charge."""
+def update_speed_control_ui(mode, n, pathname, search):
+    """Remote mode enables controls; shared read-only links cannot command."""
     if pathname != "/real":
         raise PreventUpdate
 
-    remote = mode == "REMOTE"
+    read_only = is_read_only(search)
     latest = mqtt_subscriber.get_latest()
+    if read_only:
+        return [True] * 6 + ["🔒 Read-only view — monitoring only"]
+
+    remote = mode == "REMOTE"
     if latest is None:
         actual = "Hardware: waiting for telemetry"
     else:
@@ -905,12 +932,13 @@ def update_speed_control_ui(mode, n, pathname):
     Input("speed-preset-0", "n_clicks"),
     State("speed-custom", "value"),
     State("url", "pathname"),
+    State("url", "search"),
     prevent_initial_call=True,
 )
 def send_speed_command(mode, n_apply, n100, n80, n50, n0,
-                       custom_speed, pathname):
-    """Publish MODE:L|R,SPD:0..100 to prime-factory/control (QoS 1, retained)."""
-    if pathname != "/real":
+                       custom_speed, pathname, search):
+    """Publish MODE:L|R,SPD:0..100; read-only viewers can never send."""
+    if pathname != "/real" or is_read_only(search):
         raise PreventUpdate
 
     trigger = dash.ctx.triggered_id

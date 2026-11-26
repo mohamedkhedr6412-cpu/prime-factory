@@ -313,6 +313,8 @@ Problem: readings reached the dashboard only every ~46–54 s. The Dash polls ev
 - `/real` is now split into five top tabs: **Overview**, **Speed Control**, **Live Charts**, **Analytics** and **Energy Log**. `switch_real_tab()` only toggles pane styles; every component stays mounted and no callback guard changed. The sticky header/tab bar was added in `assets/custom.css`, and the Real charts now use `responsive=True`.
 - Global visual refresh: shared `COLORS` tokens and `apply_plot_style()` give every Plotly figure the same slate/teal palette; `assets/custom.css` softens cards, buttons, badges, tabs, inputs and scrollbars. The six Real Mode KPI cards are now a vertical `.reading-stack` on the Overview tab instead of a six-column row.
 - Added `start-platform.bat` and a Desktop shortcut **PRIME-Factory.lnk**. The launcher checks/starts the Mosquitto service, starts Dash only if port 8050 is free, waits for readiness, then opens `/real`. No terminal commands are needed for daily use.
+- Added a **read-only sharing mode**: `/real?view=readonly` hides the Speed Control tab, disables all speed inputs, and `send_speed_command()` rejects any command from such a link. The normal `/real` page keeps full control. This makes it safe to share a public tunnel link with a supervisor or teammates who should only watch.
+- ESP Wi-Fi/MQTT retry intervals were reduced from 10 s / 5 s to 2 s / 2 s, with retries also on `WL_IDLE_STATUS` and `WL_NO_SSID_AVAIL`, so `ONLINE` appears quickly after power returns. ESP display-only low-voltage constant was aligned with Arduino's 9.0 V alarm. Arduino low-voltage alarm is now `≤9.0 V` with recovery at `≥10.2 V`.
 
 ### Verification
 - Arduino Nano compile: OK. ESP32-S3 compile: OK (also after replacing `sscanf(%f)` with manual parsing). `py_compile` for Python files: OK.
@@ -321,6 +323,7 @@ Problem: readings reached the dashboard only every ~46–54 s. The Dash polls ev
 - Browser check after the tab split: clicking **Speed Control** and **Energy Log** showed only the selected pane, all other panes stayed `display:none`, and the console had no errors.
 - Browser check after the palette change: body `rgb(15,23,42)`, cards `rgb(30,41,59)`, selected tab `rgb(56,189,248)`, six stacked `.reading-card` elements with `flex-direction: column`; no console errors on `/real` or `/simulation`.
 - Launcher tested from a stopped state and from an already-running state: both paths ended with port 8050 listening and `HTTP 200` on `/real`; no timeout/input-redirection errors after switching waits to `ping`.
+- Browser on `/real?view=readonly`: the Speed Control tab became `display:none`, all six speed inputs were `disabled`, and the status read `🔒 Read-only view — monitoring only`; `/real` kept the tab visible. No console errors.
 - Both modified sketches must be re-uploaded by the user; no hardware upload was performed here.
 - Follow-up: with the command wire on GPIO43, the ESP reported "no data" while still forwarding MQTT commands. Moved `Serial2` to GPIO16/17 and added RX-byte diagnostics; ESP32-S3 compile remained OK.
-- No commit, push or remote change was made.
+- The local work was committed as `c67c281` and pushed to `origin/main`; no database or firmware sketch was uploaded.
