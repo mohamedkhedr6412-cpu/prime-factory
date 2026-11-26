@@ -41,3 +41,6 @@ desktop.ini
 # Secrets
 .env
 secrets.txt
+
+# Generated public share link (local tunnel URL, changes on restart)
+share-link.txt

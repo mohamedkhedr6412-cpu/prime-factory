@@ -56,6 +56,10 @@ http://<your-address>:8050/real?view=readonly
 
 A read-only link hides the **Speed Control** tab, disables every speed input, and the server rejects any command coming from that link. Monitoring, charts, analytics and the energy log remain fully visible. Use a tunnel (Cloudflare Quick Tunnel, Tailscale Funnel or ngrok) to give the team a public HTTPS link; the dashboard itself binds `0.0.0.0:8050` and only needs outbound access for the tunnel. Never expose the MQTT broker port `1883` publicly.
 
+### One-click share link (Cloudflare Quick Tunnel)
+
+The script expects `cloudflared.exe` at `C:\prime-factory\cloudflared.exe`. Double-click **`start-share-link.bat`** (or the Desktop shortcut **PRIME-Share-Link**) on the host PC. It checks/starts the dashboard and tunnel, waits for the public URL, writes it to `share-link.txt`, and opens the read-only page automatically. Copy that link to the supervisor and teammates. Cloudflare Quick Tunnel URLs change whenever the tunnel restarts — rerun the script and send the new link. To stop the tunnel, run `start-share-link.bat -Stop`. The database is never uploaded; viewers only receive rendered dashboard pages.
+
 ---
 
 ## Tech Stack (Python 3.14)
